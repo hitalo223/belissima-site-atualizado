@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pedido confirmado — Belíssima</title>
+<title>Pedido — Belíssima</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
@@ -11,9 +11,12 @@
   .success-wrap{min-height:70vh;display:flex;align-items:center;justify-content:center;padding:60px 24px;background:#F3EDE4}
   .success-card{max-width:620px;width:100%;background:#fff;border:1px solid rgba(96,76,67,.12);padding:54px 42px;text-align:center;box-shadow:0 22px 60px rgba(54,39,32,.08)}
   .success-mark{width:56px;height:56px;margin:0 auto 20px;border-radius:50%;background:#C0304F;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px}
+  .success-mark.pending{background:#A99586}
+  .success-mark.error{background:#604C43}
   .success-card h1{font-family:'DM Serif Display',serif;font-size:34px;font-weight:400;color:#604C43;margin-bottom:12px}
   .success-card p{font-size:13px;line-height:1.8;color:#8D786B;margin-bottom:26px}
   .success-card a{display:inline-block;background:#C0304F;color:#fff;padding:13px 24px;font-size:11px;letter-spacing:1.5px;font-weight:600}
+  .success-total{display:none;margin:-8px 0 24px;font-size:12px;color:#604C43;font-weight:600}
 </style>
 </head>
 <body>
@@ -29,15 +32,64 @@
 
   <main class="success-wrap">
     <section class="success-card">
-      <div class="success-mark">✓</div>
-      <h1>Pedido confirmado</h1>
-      <p>Seu pagamento foi encaminhado com sucesso pelo checkout seguro. Em breve você poderá acompanhar os detalhes do pedido pela sua conta.</p>
+      <div class="success-mark pending" id="status-mark">…</div>
+      <h1 id="status-title">Validando seu pedido</h1>
+      <p id="status-message">Estamos conferindo o retorno do checkout seguro da Stripe.</p>
+      <div class="success-total" id="status-total"></div>
       <a href="loja.html">CONTINUAR COMPRANDO</a>
     </section>
   </main>
 
   <script>
-    localStorage.removeItem('belissima_cart_v1');
+    (async function validateCheckout() {
+      const mark = document.getElementById('status-mark');
+      const title = document.getElementById('status-title');
+      const message = document.getElementById('status-message');
+      const total = document.getElementById('status-total');
+      const sessionId = new URLSearchParams(window.location.search).get('session_id');
+
+      function showError(text) {
+        mark.textContent = '!';
+        mark.className = 'success-mark error';
+        title.textContent = 'Não foi possível confirmar o pedido';
+        message.textContent = text;
+      }
+
+      if (!sessionId) {
+        showError('A identificação do checkout não foi encontrada. Sua sacola foi preservada.');
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/get-checkout-session?session_id=${encodeURIComponent(sessionId)}`);
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Falha ao validar a sessão.');
+
+        if (data.status !== 'complete') {
+          showError('O checkout ainda não foi concluído. Sua sacola foi preservada para você tentar novamente.');
+          return;
+        }
+
+        localStorage.removeItem('belissima_cart_v1');
+        mark.textContent = '✓';
+        mark.className = 'success-mark';
+
+        if (data.payment_status === 'paid') {
+          title.textContent = 'Pedido confirmado';
+          message.textContent = 'Seu pagamento foi confirmado pelo checkout seguro da Stripe.';
+        } else {
+          title.textContent = 'Pedido recebido';
+          message.textContent = 'O checkout foi concluído e o pagamento está aguardando confirmação. Você receberá a atualização assim que o processamento terminar.';
+        }
+
+        if (typeof data.amount_total === 'number' && data.currency) {
+          total.textContent = `Total: ${(data.amount_total / 100).toLocaleString('pt-BR', { style: 'currency', currency: String(data.currency).toUpperCase() })}`;
+          total.style.display = 'block';
+        }
+      } catch (error) {
+        showError('Não conseguimos validar o retorno da Stripe agora. Sua sacola foi preservada e nenhum novo pagamento foi iniciado.');
+      }
+    })();
   </script>
 </body>
 </html>
