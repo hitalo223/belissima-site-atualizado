@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pedido confirmado — Belíssima</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .success-wrap{min-height:70vh;display:flex;align-items:center;justify-content:center;padding:60px 24px;background:#F3EDE4}
+  .success-card{max-width:620px;width:100%;background:#fff;border:1px solid rgba(96,76,67,.12);padding:54px 42px;text-align:center;box-shadow:0 22px 60px rgba(54,39,32,.08)}
+  .success-mark{width:56px;height:56px;margin:0 auto 20px;border-radius:50%;background:#C0304F;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px}
+  .success-card h1{font-family:'DM Serif Display',serif;font-size:34px;font-weight:400;color:#604C43;margin-bottom:12px}
+  .success-card p{font-size:13px;line-height:1.8;color:#8D786B;margin-bottom:26px}
+  .success-card a{display:inline-block;background:#C0304F;color:#fff;padding:13px 24px;font-size:11px;letter-spacing:1.5px;font-weight:600}
+</style>
+</head>
+<body>
+  <div class="announce">Belíssima Moda Íntima</div>
+  <header>
+    <div style="min-width:160px"></div>
+    <a class="logo-block" href="loja.html" style="text-decoration:none;">
+      <div class="name">BELÍSSIMA</div>
+      <div class="sub">MODA ÍNTIMA</div>
+    </a>
+    <div style="min-width:160px"></div>
+  </header>
+
+  <main class="success-wrap">
+    <section class="success-card">
+      <div class="success-mark">✓</div>
+      <h1>Pedido confirmado</h1>
+      <p>Seu pagamento foi encaminhado com sucesso pelo checkout seguro. Em breve você poderá acompanhar os detalhes do pedido pela sua conta.</p>
+      <a href="loja.html">CONTINUAR COMPRANDO</a>
+    </section>
+  </main>
+
+  <script>
+    localStorage.removeItem('belissima_cart_v1');
+  </script>
+</body>
+</html>
