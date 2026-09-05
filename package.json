@@ -1,0 +1,8 @@
+{
+  "name": "belissima-site-atualizado",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "stripe": "22.4.0"
+  }
+}
