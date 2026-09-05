@@ -1,0 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@300;400;500;600;700&family=Cormorant+Garamond:ital@1&display=swap');
+
+:root {
+  --marfim: #F3EDE4;
+  --taupe: #A99586;
+  --mocha: #604C43;
+  --caramelo: #B88F70;
+  --malva: #9B7D7D;
+  --champagne: #C8AD88;
+  --framboesa: #C0304F;
+
+  --font-display: 'DM Serif Display', serif;
+  --font-body: 'Manrope', sans-serif;
+  --font-tagline: 'Cormorant Garamond', serif;
+}
