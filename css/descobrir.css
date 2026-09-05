@@ -1,0 +1,159 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--mocha);
+}
+
+/* ===== TOPO FIXO ===== */
+.story-topbar {
+  position: fixed;
+  top: 0; left: 0; width: 100%;
+  z-index: 50;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 40px;
+  mix-blend-mode: difference;
+}
+.story-topbar a, .story-topbar span {
+  color: #fff;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-decoration: none;
+}
+.story-topbar .brand { font-family: var(--font-display); font-size: 16px; letter-spacing: 3px; }
+
+/* ===== INDICADOR DE PROGRESSO LATERAL ===== */
+.story-progress {
+  position: fixed;
+  right: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.story-progress .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.5);
+  background: transparent;
+  transition: all .4s ease;
+}
+.story-progress .dot.active {
+  background: var(--champagne);
+  border-color: var(--champagne);
+  transform: scale(1.3);
+}
+
+/* ===== TELA DE CARREGAMENTO DO VÍDEO ===== */
+.video-loading {
+  position: fixed;
+  inset: 0;
+  background: var(--mocha);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  color: #fff;
+  transition: opacity .6s ease;
+}
+.video-loading.hidden { opacity: 0; pointer-events: none; }
+.video-loading .label { font-size: 11px; letter-spacing: 3px; color: var(--champagne); }
+.video-loading .bar {
+  width: 200px; height: 2px;
+  background: rgba(255,255,255,0.2);
+  overflow: hidden;
+}
+.video-loading .bar-fill {
+  height: 100%; width: 0%;
+  background: var(--champagne);
+  transition: width .2s ease;
+}
+
+/* ===== WRAPPER LONGO QUE CONTROLA O SCROLL ===== */
+.scroll-video-wrapper {
+  position: relative;
+  height: 400vh;
+}
+
+.scroll-video-pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.scroll-video-pin video {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.scroll-video-pin .scene-overlay {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(180deg, rgba(96,76,67,0.15), rgba(96,76,67,0.45));
+  z-index: 1;
+}
+
+/* ===== TEXTOS SINCRONIZADOS COM O TRECHO DO VÍDEO ===== */
+.scene-text {
+  position: absolute;
+  z-index: 2;
+  text-align: center;
+  color: var(--marfim);
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity .5s ease, transform .5s ease;
+  pointer-events: none;
+  padding: 0 30px;
+  max-width: 700px;
+}
+.scene-text.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.scene-text .eyebrow {
+  font-size: 11px;
+  letter-spacing: 5px;
+  color: var(--champagne);
+  margin-bottom: 18px;
+}
+.scene-text .headline {
+  font-family: var(--font-display);
+  font-size: 46px;
+  line-height: 1.2;
+}
+.scene-text .sub {
+  font-family: var(--font-tagline);
+  font-style: italic;
+  font-size: 18px;
+  color: #e8ddd0;
+  margin-top: 16px;
+}
+.scene-text .cta {
+  display: inline-block;
+  margin-top: 30px;
+  padding: 14px 34px;
+  background: var(--framboesa);
+  color: #fff;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-decoration: none;
+  border-radius: 2px;
+}
+
+@media (max-width: 640px) {
+  .scene-text .headline { font-size: 30px; }
+  .story-progress { right: 14px; }
+  .scroll-video-wrapper { height: 350vh; }
+}
