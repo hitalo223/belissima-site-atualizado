@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Categoria — Belíssima Moda Íntima</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@300;400;500;600;700&family=Cormorant+Garamond:ital@1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="announce">Frete grátis para todo o Brasil em compras acima de R$399 · 10% OFF na primeira compra</div>
+
+  <header>
+    <button class="menu-toggle" type="button" aria-label="Abrir menu de categorias">☰</button>
+    <a class="logo-block" href="loja.html" style="text-decoration:none;">
+      <div class="name">BELÍSSIMA</div>
+      <div class="sub">MODA ÍNTIMA</div>
+    </a>
+    <div class="header-icons">
+      <span>🔍</span><span>♡</span><a href="login.html" id="account-link" class="account-icon">👤</a><span>🛍</span>
+    </div>
+  </header>
+
+  <div class="mobile-drawer" id="mobile-drawer" aria-hidden="true">
+    <div class="mobile-drawer-overlay" data-drawer-close></div>
+    <nav class="mobile-drawer-panel">
+      <div class="mobile-drawer-head">
+        <span class="mobile-drawer-brand">BELÍSSIMA</span>
+        <button class="mobile-drawer-close" type="button" data-drawer-close aria-label="Fechar menu">✕</button>
+      </div>
+      <div class="mobile-drawer-section">
+        <a href="loja.html">Inicial</a>
+        <a href="index.html">Descobrir</a>
+        <a href="#">Conheça mais sobre nós aqui</a>
+        <a href="#">Suporte</a>
+      </div>
+      <div class="mobile-drawer-eyebrow">CATEGORIAS</div>
+      <div class="mobile-drawer-section categories">
+        <a href="categoria.html?cat=sutias" data-cat="sutias">Sutiãs <span>32</span></a>
+        <a href="categoria.html?cat=calcinhas" data-cat="calcinhas">Calcinhas <span>45</span></a>
+        <a href="categoria.html?cat=bodies" data-cat="bodies">Bodies <span>18</span></a>
+        <a href="categoria.html?cat=conjuntos" data-cat="conjuntos">Conjuntos <span>27</span></a>
+        <a href="categoria.html?cat=pijamas" data-cat="pijamas">Pijamas <span>14</span></a>
+        <a href="categoria.html?cat=modeladores" data-cat="modeladores">Modeladores <span>9</span></a>
+        <a href="categoria.html?cat=outlet" data-cat="outlet">Outlet <span>21</span></a>
+      </div>
+      <div class="mobile-drawer-promo">
+        <b>10% OFF</b>
+        Cadastre-se e ganhe desconto na primeira compra.
+      </div>
+    </nav>
+  </div>
+
+  <nav class="section-tabs">
+    <a class="tab" href="loja.html">Inicial<span class="path">suamarca.com.br</span></a>
+    <a class="tab" href="index.html">Descobrir<span class="path">descobrir.suamarca.com.br</span></a>
+    <a class="tab" href="#">Conheça mais sobre nós aqui<span class="path">sobre.suamarca.com.br</span></a>
+    <a class="tab" href="#">Suporte<span class="path">suporte.suamarca.com.br</span></a>
+  </nav>
+
+  <div class="layout">
+
+    <aside class="sidebar">
+      <div class="eyebrow">CATEGORIAS</div>
+      <ul>
+        <li data-cat="sutias"><a href="categoria.html?cat=sutias">Sutiãs</a></li>
+        <li data-cat="calcinhas"><a href="categoria.html?cat=calcinhas">Calcinhas</a></li>
+        <li data-cat="bodies"><a href="categoria.html?cat=bodies">Bodies</a></li>
+        <li data-cat="conjuntos"><a href="categoria.html?cat=conjuntos">Conjuntos</a></li>
+        <li data-cat="pijamas"><a href="categoria.html?cat=pijamas">Pijamas</a></li>
+        <li data-cat="modeladores"><a href="categoria.html?cat=modeladores">Modeladores</a></li>
+        <li data-cat="outlet"><a href="categoria.html?cat=outlet">Outlet</a></li>
+      </ul>
+      <div class="promo-box">
+        <b>10% OFF</b>
+        Cadastre-se e ganhe desconto na primeira compra.
+      </div>
+    </aside>
+
+    <main>
+      <div style="font-size:11px; letter-spacing:1px; color:#A99586; margin-bottom:10px;">
+        <a href="loja.html" style="color:#A99586;">Início</a> &nbsp;›&nbsp; <span id="breadcrumb-cat">Categoria</span>
+      </div>
+      <div class="section-title" id="category-title">Categoria</div>
+
+      <div class="prod-grid" id="product-grid">
+        <!-- Produtos inseridos via JavaScript (js/categoria.js) -->
+      </div>
+
+      <div id="empty-state" style="display:none; text-align:center; padding:60px 0; color:#A99586;">
+        Nenhum produto encontrado nessa categoria ainda.
+      </div>
+
+      <div class="newsletter" style="margin-top:40px;">
+        <h3>Quer saber das novidades?</h3>
+        <p>Conteúdo, ofertas e lançamentos — do seu jeito. Cadastre-se!</p>
+        <form onsubmit="return false;">
+          <input type="email" placeholder="Insira seu e-mail">
+          <button>Cadastrar</button>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <h4>SOBRE</h4>
+        <a href="#">Nossa história</a>
+        <a href="#">Conheça mais sobre nós aqui</a>
+        <a href="#">Trabalhe conosco</a>
+      </div>
+      <div>
+        <h4>CONTA</h4>
+        <a href="#">Login</a>
+        <a href="#">Meus pedidos</a>
+        <a href="#">Lista de desejos</a>
+      </div>
+      <div>
+        <h4>SUPORTE</h4>
+        <a href="#">Trocas e devoluções</a>
+        <a href="#">Formas de pagamento</a>
+        <a href="#">Fale conosco</a>
+      </div>
+      <div>
+        <h4>DESCOBRIR</h4>
+        <a href="index.html">Lookbook (intro cinemática)</a>
+        <a href="#">Blog</a>
+        <a href="#">Guia de medidas</a>
+      </div>
+    </div>
+    <div class="footer-bottom">Belíssima Moda Íntima © 2026 — Todos os direitos reservados</div>
+  </footer>
+
+  <script src="js/products-data.js"></script>
+  <script src="js/categoria.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>
