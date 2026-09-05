@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Belíssima Moda Íntima</title>
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/descobrir.css">
+</head>
+<body>
+
+  <!-- Tela de carregamento: some sozinha quando o vídeo estiver pronto pra rolar sem travar -->
+  <div class="video-loading">
+    <div class="label">CARREGANDO EXPERIÊNCIA</div>
+    <div class="bar"><div class="bar-fill"></div></div>
+  </div>
+
+  <div class="story-topbar">
+    <span class="brand">BELÍSSIMA</span>
+    <a href="loja.html">PULAR INTRODUÇÃO →</a>
+  </div>
+
+  <div class="story-progress">
+    <div class="dot active"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </div>
+
+  <!-- WRAPPER LONGO: a altura dele (definida no CSS, .scroll-video-wrapper)
+       é o que controla quanto o usuário precisa rolar pra ver o vídeo inteiro -->
+  <div class="scroll-video-wrapper">
+    <div class="scroll-video-pin">
+
+      <video muted playsinline preload="auto">
+        <source src="assets/video/ritual-belissima.mp4" type="video/mp4">
+      </video>
+      <div class="scene-overlay"></div>
+
+      <!-- Vídeo tem 8s reais, 4 cenas de 2s cada (fechadura / quarto / cortina / closet+manequim).
+           Cada data-range = (início,fim) em % do scroll total, batendo com os 2s de cada cena. -->
+      <div class="scene-text" data-range="0,0.25">
+        <div class="eyebrow">O RITUAL BELÍSSIMA</div>
+        <div class="headline">Antes de vestir,<br>um momento seu.</div>
+      </div>
+
+      <div class="scene-text" data-range="0.25,0.5">
+        <div class="eyebrow">A ESCOLHA</div>
+        <div class="headline">Cada peça,<br>uma sensação.</div>
+      </div>
+
+      <div class="scene-text" data-range="0.5,0.75">
+        <div class="eyebrow">O CUIDADO</div>
+        <div class="headline">Vestir é um<br>ato de cuidado.</div>
+      </div>
+
+      <div class="scene-text" data-range="0.75,1.01">
+        <div class="eyebrow">O CONVITE</div>
+        <div class="headline">Descubra a coleção<br>Belíssima.</div>
+        <a href="loja.html" class="cta">ENTRAR NA LOJA →</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/scroll-story.js"></script>
+</body>
+</html>
