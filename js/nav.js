@@ -49,3 +49,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+// Carrega o carrinho compartilhado nas páginas principais sem duplicar markup.
+(function loadCart() {
+  if (document.querySelector('script[data-belissima-cart]')) return;
+  const script = document.createElement('script');
+  script.src = 'js/cart.js';
+  script.defer = true;
+  script.dataset.belissimaCart = 'true';
+  document.body.appendChild(script);
+})();
