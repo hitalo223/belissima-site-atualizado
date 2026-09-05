@@ -1,5 +1,10 @@
-// Vercel Function: cria uma sessão de Checkout da Stripe sem expor a chave secreta no frontend.
-// Configure STRIPE_SECRET_KEY nas Environment Variables da Vercel.
+// Vercel Function: cria uma sessão de Checkout da Stripe sem expor credenciais no frontend.
+// Configure STRIPE_SECRET_KEY como variável sensível na Vercel. Prefira uma restricted key (rk_) com o mínimo de permissões.
+
+const Stripe = require('stripe');
+
+const STRIPE_API_VERSION = '2026-07-29.dahlia';
+const INTEGRATION_IDENTIFIER = 'belissima_checkout_nqvszklt';
 
 const CATALOG = {
   'sutia-renda-sem-costura': { name: 'Sutiã Renda Sem Costura', price: 18990 },
@@ -38,16 +43,22 @@ function getOrigin(req) {
   return `${proto}://${host}`;
 }
 
+function getStripeClient() {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) return null;
+  return new Stripe(key, { apiVersion: STRIPE_API_VERSION });
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'Método não permitido.' });
   }
 
-  const secret = process.env.STRIPE_SECRET_KEY;
-  if (!secret) {
+  const stripe = getStripeClient();
+  if (!stripe) {
     return res.status(503).json({
-      error: 'Checkout ainda não configurado. Adicione STRIPE_SECRET_KEY nas variáveis de ambiente da Vercel.'
+      error: 'Checkout ainda não configurado. Adicione STRIPE_SECRET_KEY nas variáveis sensíveis da Vercel.'
     });
   }
 
@@ -58,56 +69,57 @@ module.exports = async function handler(req, res) {
 
   const items = Array.isArray(body.items) ? body.items : [];
   if (!items.length) return res.status(400).json({ error: 'Sua sacola está vazia.' });
+  if (items.length > 50) return res.status(400).json({ error: 'Sua sacola possui itens demais.' });
 
-  const params = new URLSearchParams();
-  params.set('mode', 'payment');
-  params.set('billing_address_collection', 'auto');
-  params.set('phone_number_collection[enabled]', 'true');
-  params.set('shipping_address_collection[allowed_countries][0]', 'BR');
-  params.set('allow_promotion_codes', 'true');
-
-  const origin = getOrigin(req);
-  params.set('success_url', `${origin}/pedido-sucesso.html?session_id={CHECKOUT_SESSION_ID}`);
-  params.set('cancel_url', `${origin}/loja.html`);
-
-  let lineIndex = 0;
+  const lineItems = [];
   for (const item of items) {
     const product = CATALOG[item.id];
     if (!product) return res.status(400).json({ error: `Produto inválido: ${item.id}` });
 
     const quantity = Math.max(1, Math.min(10, Number(item.quantity) || 1));
-    const details = [item.size ? `Tam. ${String(item.size).slice(0, 20)}` : '', item.color ? `Cor ${String(item.color).slice(0, 20)}` : '']
-      .filter(Boolean)
-      .join(' · ');
+    const details = [
+      item.size ? `Tam. ${String(item.size).slice(0, 20)}` : '',
+      item.color ? `Cor ${String(item.color).slice(0, 20)}` : ''
+    ].filter(Boolean).join(' · ');
 
-    const prefix = `line_items[${lineIndex}]`;
-    params.set(`${prefix}[quantity]`, String(quantity));
-    params.set(`${prefix}[price_data][currency]`, 'brl');
-    params.set(`${prefix}[price_data][unit_amount]`, String(product.price));
-    params.set(`${prefix}[price_data][product_data][name]`, product.name);
-    if (details) params.set(`${prefix}[price_data][product_data][description]`, details);
-    lineIndex += 1;
+    lineItems.push({
+      quantity,
+      price_data: {
+        currency: 'brl',
+        unit_amount: product.price,
+        product_data: {
+          name: product.name,
+          ...(details ? { description: details } : {}),
+        },
+      },
+    });
   }
 
-  try {
-    const stripeResponse = await fetch('https://api.stripe.com/v1/checkout/sessions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${secret}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: params.toString(),
-    });
+  const origin = getOrigin(req);
 
-    const session = await stripeResponse.json();
-    if (!stripeResponse.ok) {
-      console.error('[Belíssima/Stripe]', session);
-      return res.status(400).json({ error: session?.error?.message || 'Não foi possível criar o checkout.' });
-    }
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      line_items: lineItems,
+      billing_address_collection: 'auto',
+      phone_number_collection: { enabled: true },
+      shipping_address_collection: { allowed_countries: ['BR'] },
+      allow_promotion_codes: true,
+      success_url: `${origin}/pedido-sucesso.html?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/loja.html`,
+      integration_identifier: INTEGRATION_IDENTIFIER,
+      metadata: {
+        store: 'belissima',
+      },
+    });
 
     return res.status(200).json({ url: session.url });
   } catch (error) {
-    console.error('[Belíssima/Stripe]', error);
-    return res.status(500).json({ error: 'Falha ao conectar com o checkout. Tente novamente.' });
+    console.error('[Belíssima/Stripe] Falha ao criar Checkout Session', {
+      type: error?.type,
+      code: error?.code,
+      requestId: error?.requestId,
+    });
+    return res.status(400).json({ error: 'Não foi possível iniciar o checkout. Tente novamente.' });
   }
 };
