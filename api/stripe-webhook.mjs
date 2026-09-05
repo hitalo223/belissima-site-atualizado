@@ -133,7 +133,14 @@ async function updateOrderPaymentState(session) {
   });
 }
 
-export async function POST(request) {
+async function handleRequest(request) {
+  if (request.method !== 'POST') {
+    return new Response('Método não permitido.', {
+      status: 405,
+      headers: { Allow: 'POST' },
+    });
+  }
+
   let stripe;
   let webhookSecret;
 
@@ -185,3 +192,5 @@ export async function POST(request) {
     return new Response('Falha ao processar webhook.', { status: 500 });
   }
 }
+
+export default { fetch: handleRequest };
