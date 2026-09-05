@@ -49,6 +49,10 @@ function getStripeClient() {
   return new Stripe(key, { apiVersion: STRIPE_API_VERSION });
 }
 
+function cleanOption(value) {
+  return value ? String(value).slice(0, 40) : '';
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -77,10 +81,11 @@ module.exports = async function handler(req, res) {
     if (!product) return res.status(400).json({ error: `Produto inválido: ${item.id}` });
 
     const quantity = Math.max(1, Math.min(10, Number(item.quantity) || 1));
-    const details = [
-      item.size ? `Tam. ${String(item.size).slice(0, 20)}` : '',
-      item.color ? `Cor ${String(item.color).slice(0, 20)}` : ''
-    ].filter(Boolean).join(' · ');
+    const size = cleanOption(item.size);
+    const color = cleanOption(item.color);
+    const details = [size ? `Tam. ${size}` : '', color ? `Cor ${color}` : '']
+      .filter(Boolean)
+      .join(' · ');
 
     lineItems.push({
       quantity,
@@ -90,6 +95,11 @@ module.exports = async function handler(req, res) {
         product_data: {
           name: product.name,
           ...(details ? { description: details } : {}),
+          metadata: {
+            catalog_id: String(item.id),
+            size,
+            color,
+          },
         },
       },
     });
