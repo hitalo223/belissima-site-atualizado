@@ -59,6 +59,7 @@
   let formSubmissionInProgress = false;
 
   function traduzErro(msg) {
+    const normalized = String(msg || '').toLowerCase();
     const dict = {
       'Invalid login credentials': 'E-mail ou senha incorretos.',
       'User already registered': 'Esse e-mail já está cadastrado. Tente entrar.',
@@ -72,8 +73,14 @@
     };
 
     if (dict[msg]) return dict[msg];
-    if (/^Email address .* is invalid$/i.test(msg || '')) return 'Esse e-mail não parece válido.';
-    if (/security purposes/i.test(msg || '')) return 'Aguarde alguns segundos antes de tentar novamente.';
+    if (normalized.includes('invalid login credentials')) return 'E-mail ou senha incorretos.';
+    if (normalized.includes('email not confirmed')) return 'Confirme seu e-mail antes de entrar — veja sua caixa de entrada e a pasta de spam.';
+    if (normalized.includes('email') && normalized.includes('invalid')) return 'Esse e-mail não parece válido.';
+    if (normalized.includes('email rate limit') || normalized.includes('over_email_send_rate_limit')) {
+      return 'O limite temporário de envio de e-mails foi atingido. Aguarde alguns minutos e tente novamente.';
+    }
+    if (normalized.includes('rate limit')) return 'Muitas tentativas foram feitas. Aguarde alguns minutos e tente novamente.';
+    if (normalized.includes('security purposes')) return 'Aguarde alguns segundos antes de tentar novamente.';
     return 'Não foi possível concluir a operação. Tente novamente.';
   }
 
