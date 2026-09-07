@@ -468,10 +468,29 @@ input:focus-visible { outline: 3px solid rgba(210, 77, 115, .26); outline-offset
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    scroll-behavior: auto !important;
-    transition-duration: .01ms !important;
-    animation-duration: .01ms !important;
+  html { scroll-behavior: auto; }
+
+  .auth-header,
+  .auth-shell,
+  .auth-form-content,
+  .auth-visual-copy > * {
+    animation-duration: .38s !important;
     animation-iteration-count: 1 !important;
+  }
+
+  .auth-form-panel {
+    transition-duration: .28s, .5s, .28s, 0s;
+  }
+
+  .auth-visual {
+    transition-duration: .72s, .32s;
+    animation-duration: 16s;
+    animation-iteration-count: infinite;
+  }
+
+  .auth-visual::before,
+  .auth-visual::after {
+    animation-duration: 20s;
+    animation-iteration-count: infinite;
   }
 }
