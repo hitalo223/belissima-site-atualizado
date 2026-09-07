@@ -31,7 +31,6 @@
 
   shell.querySelectorAll('[data-auth-target]').forEach((control) => {
     control.addEventListener('click', (event) => {
-      if (window.matchMedia('(max-width: 820px)').matches) return;
       event.preventDefault();
       setMode(control.dataset.authTarget, true);
     });
