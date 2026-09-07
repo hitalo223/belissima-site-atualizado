@@ -5,6 +5,10 @@
   const currentPage = window.location.pathname.split('/').pop() || '';
 
   function getPageMessage() {
+    const shell = document.getElementById('auth-shell');
+    if (shell && shell.classList.contains('is-signup')) {
+      return document.getElementById('cadastro-message');
+    }
     return document.getElementById('login-message') || document.getElementById('cadastro-message');
   }
 
