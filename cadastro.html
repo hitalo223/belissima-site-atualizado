@@ -5,14 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Criar conta — Belíssima Moda Íntima</title>
 <link rel="stylesheet" href="css/variables.css">
-<link rel="stylesheet" href="css/auth.css?v=7">
+<link rel="stylesheet" href="css/auth.css?v=8">
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 </head>
 <body class="auth-body" data-auth-mode="signup">
   <header class="auth-header">
     <a href="loja.html" class="back-link">‹ Voltar à loja</a>
-    <div class="logo-block" aria-label="Belíssima Moda Íntima">
-      <div class="name">BELÍSSIMA</div>
-      <div class="sub">MODA ÍNTIMA</div>
+    <div class="auth-brand">
+      <div class="logo-block" aria-label="Belíssima Moda Íntima">
+        <div class="name">BELÍSSIMA</div>
+        <div class="sub">MODA ÍNTIMA</div>
+      </div>
+      <model-viewer
+        class="auth-brand-model"
+        src="assets/models/belissima-busto-frontal.glb"
+        alt="Busto artístico vermelho de frente"
+        camera-orbit="0deg 75deg auto"
+        field-of-view="27deg"
+        exposure="1.15"
+        interaction-prompt="none"
+        loading="eager">
+      </model-viewer>
     </div>
     <span class="spacer" aria-hidden="true"></span>
   </header>
