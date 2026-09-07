@@ -59,6 +59,10 @@
     },
   });
 
+  // Compartilha a mesma sessão com recursos da loja, como a sacola por usuário.
+  window.BelissimaAuth = { client: supabaseClient };
+  window.dispatchEvent(new CustomEvent('belissima:auth-ready'));
+
   let redirectScheduled = false;
   let formSubmissionInProgress = false;
 

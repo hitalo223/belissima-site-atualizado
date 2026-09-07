@@ -1,15 +1,39 @@
 // Carrinho da Belíssima — persiste no navegador e prepara o checkout Stripe.
 (function () {
-  const STORAGE_KEY = 'belissima_cart_v1';
+  const LEGACY_STORAGE_KEY = 'belissima_cart_v1';
+  const STORAGE_PREFIX = 'belissima_cart_v2:';
+  const CHECKOUT_STORAGE_KEY = 'belissima_checkout_cart_key';
   const MAX_QTY = 10;
+  let cartOwner = 'guest';
+  let cartOwnerReady = false;
+  const pendingItems = [];
+
+  function storageKey() {
+    return STORAGE_PREFIX + cartOwner;
+  }
+
+  function migrateLegacyCart() {
+    const guestKey = STORAGE_PREFIX + 'guest';
+    const legacyValue = localStorage.getItem(LEGACY_STORAGE_KEY);
+    if (legacyValue !== null && localStorage.getItem(guestKey) === null) {
+      try {
+        const cart = JSON.parse(legacyValue);
+        if (Array.isArray(cart)) localStorage.setItem(guestKey, JSON.stringify(cart));
+      } catch (_) {
+        // Ignora dados antigos inválidos.
+      }
+    }
+    localStorage.removeItem(LEGACY_STORAGE_KEY);
+  }
 
   function money(value) {
     return Number(value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
 
   function getCart() {
+    if (!cartOwnerReady) return [];
     try {
-      const value = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      const value = JSON.parse(localStorage.getItem(storageKey()) || '[]');
       return Array.isArray(value) ? value : [];
     } catch (_) {
       return [];
@@ -17,7 +41,7 @@
   }
 
   function saveCart(cart) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+    localStorage.setItem(storageKey(), JSON.stringify(cart));
     render();
   }
 
@@ -26,6 +50,11 @@
   }
 
   function addItem(item) {
+    if (!cartOwnerReady) {
+      pendingItems.push(item);
+      return;
+    }
+
     const cart = getCart();
     const key = itemKey(item);
     const existing = cart.find((entry) => itemKey(entry) === key);
@@ -46,6 +75,51 @@
 
     saveCart(cart);
     openDrawer();
+  }
+
+  function setCartOwner(userId) {
+    const nextOwner = userId ? `user:${userId}` : 'guest';
+    const changed = nextOwner !== cartOwner;
+    cartOwner = nextOwner;
+    cartOwnerReady = true;
+
+    if (changed) closeDrawer();
+    render();
+
+    while (pendingItems.length) addItem(pendingItems.shift());
+  }
+
+  function waitForAuthClient() {
+    if (window.BelissimaAuth?.client) return Promise.resolve(window.BelissimaAuth.client);
+
+    return new Promise((resolve) => {
+      const timeout = window.setTimeout(() => resolve(null), 5000);
+      window.addEventListener('belissima:auth-ready', () => {
+        window.clearTimeout(timeout);
+        resolve(window.BelissimaAuth?.client || null);
+      }, { once: true });
+    });
+  }
+
+  async function setupCartOwner() {
+    try {
+      const client = await waitForAuthClient();
+      if (!client) {
+        setCartOwner(null);
+        return;
+      }
+
+      const { data, error } = await client.auth.getSession();
+      if (error) throw error;
+      setCartOwner(data.session?.user?.id || null);
+
+      client.auth.onAuthStateChange((_event, session) => {
+        setCartOwner(session?.user?.id || null);
+      });
+    } catch (error) {
+      console.error('[Belíssima/Cart] Não foi possível identificar a conta', error);
+      setCartOwner(null);
+    }
   }
 
   function updateQuantity(index, delta) {
@@ -248,6 +322,7 @@
       });
       const data = await response.json();
       if (!response.ok || !data.url) throw new Error(data.error || 'Não foi possível iniciar o checkout.');
+      sessionStorage.setItem(CHECKOUT_STORAGE_KEY, storageKey());
       window.location.href = data.url;
     } catch (error) {
       errorEl.textContent = error.message || 'Não foi possível abrir o checkout. Tente novamente.';
@@ -273,11 +348,13 @@
   }
 
   function init() {
+    migrateLegacyCart();
     injectStyles();
     injectDrawer();
     setupIcon();
     setupProductButton();
     render();
+    setupCartOwner();
   }
 
   window.BelissimaCart = { addItem, getCart, open: openDrawer, close: closeDrawer };

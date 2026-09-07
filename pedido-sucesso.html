@@ -70,7 +70,11 @@
           return;
         }
 
-        localStorage.removeItem('belissima_cart_v1');
+        const checkoutCartKey = sessionStorage.getItem('belissima_checkout_cart_key');
+        if (checkoutCartKey && checkoutCartKey.startsWith('belissima_cart_v2:')) {
+          localStorage.removeItem(checkoutCartKey);
+          sessionStorage.removeItem('belissima_checkout_cart_key');
+        }
         mark.textContent = '✓';
         mark.className = 'success-mark';
 
