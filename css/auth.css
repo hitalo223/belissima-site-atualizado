@@ -267,6 +267,28 @@
   animation: auth-gradient-flow 11s ease-in-out infinite alternate;
 }
 .auth-shell.is-signup .auth-visual { transform: translate3d(calc(-100% - 10px), 0, 0); }
+.auth-visual-video,
+.auth-visual-tint {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.auth-visual-video {
+  z-index: 0;
+  display: block;
+  border: 0;
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+}
+.auth-visual-tint {
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(64, 28, 48, .06) 0%, rgba(75, 31, 54, .22) 48%, rgba(55, 22, 41, .58) 100%),
+    linear-gradient(115deg, rgba(210, 77, 115, .13), rgba(91, 48, 69, .16));
+  pointer-events: none;
+}
 .auth-visual::before,
 .auth-visual::after {
   content: '';
@@ -274,6 +296,7 @@
   border: 1px solid rgba(255, 255, 255, .2);
   border-radius: 50%;
   transform: rotate(-18deg);
+  z-index: 2;
 }
 .auth-visual::before {
   width: 420px;
@@ -291,6 +314,7 @@
 }
 .auth-visual-mark {
   position: absolute;
+  z-index: 3;
   top: 31px;
   left: 34px;
   font: italic 34px var(--font-tagline);
@@ -307,7 +331,7 @@
 .auth-visual-copy {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: 3;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
