@@ -51,6 +51,8 @@
 
   async function updateCampaignCopy() {
     const config = await getConfig();
+    document.querySelectorAll('[data-shipping-ui]').forEach((element) => { element.hidden = !config.enabled; });
+    if (!config.enabled) return;
     const amount = moneyFromCents(config.freeShippingThresholdCents).replace(/,00$/, '');
     document.querySelectorAll('.announce').forEach((element) => {
       element.textContent = `Frete grátis para todo o Brasil em compras a partir de ${amount} · 10% OFF na primeira compra`;

@@ -11,7 +11,7 @@
 </head>
 <body>
 
-  <div class="announce">Frete grátis para todo o Brasil em compras a partir de R$ 199 · 10% OFF na primeira compra</div>
+  <div class="announce">Frete grátis para todo o Brasil em compras acima de R$399 · 10% OFF na primeira compra</div>
 
   <header>
     <button class="menu-toggle" type="button" aria-label="Abrir menu de categorias">☰</button>
@@ -95,7 +95,7 @@
         <button class="add-to-bag" id="add-to-bag">ADICIONAR À SACOLA</button>
       </div>
 
-      <section class="shipping-calculator" aria-labelledby="shipping-title">
+      <section class="shipping-calculator" data-shipping-ui hidden aria-labelledby="shipping-title">
         <label id="shipping-title" for="product-postal-code">Calcule o frete e o prazo</label>
         <div class="cep-check">
           <input id="product-postal-code" data-postal-code type="text" inputmode="numeric" autocomplete="postal-code" placeholder="Digite seu CEP" maxlength="9" aria-describedby="product-shipping-status">

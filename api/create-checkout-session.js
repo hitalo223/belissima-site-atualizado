@@ -1,6 +1,6 @@
 // Vercel Function: cria uma sessão segura usando preços do catálogo no Supabase.
 const Stripe = require('stripe');
-const { calculateShipping, ShippingError } = require('../lib/shipping');
+const { calculateShipping, ShippingError, isShippingEnabled, getCatalogProducts } = require('../lib/shipping');
 
 const STRIPE_API_VERSION = '2026-07-29.dahlia';
 const INTEGRATION_IDENTIFIER = 'belissima_checkout_nqvszklt';
@@ -71,17 +71,18 @@ module.exports = async function handler(req, res) {
     });
   }
 
+  const shippingEnabled = isShippingEnabled();
   const requestedShipping = body.shipping || {};
   const postalCode = String(requestedShipping.postalCode || '');
   const serviceId = String(requestedShipping.serviceId || '');
-  if (!postalCode || !serviceId) {
+  if (shippingEnabled && (!postalCode || !serviceId)) {
     return res.status(400).json({ error: 'Calcule o frete e escolha uma modalidade de entrega.' });
   }
 
   try {
-    const shippingQuote = await calculateShipping({ postalCode, items: normalizedItems });
-    const selectedShipping = shippingQuote.options.find((option) => option.serviceId === serviceId);
-    if (!selectedShipping) {
+    const shippingQuote = shippingEnabled ? await calculateShipping({ postalCode, items: normalizedItems }) : null;
+    const selectedShipping = shippingEnabled ? shippingQuote.options.find((option) => option.serviceId === serviceId) : null;
+    if (shippingEnabled && !selectedShipping) {
       return res.status(409).json({
         error: 'A modalidade escolhida mudou. Calcule o frete novamente.',
         code: 'shipping_changed',
@@ -89,14 +90,16 @@ module.exports = async function handler(req, res) {
       });
     }
     const expectedCharge = Number(requestedShipping.chargedCents);
-    if (Number.isInteger(expectedCharge) && expectedCharge !== selectedShipping.chargedCents) {
+    if (shippingEnabled && Number.isInteger(expectedCharge) && expectedCharge !== selectedShipping.chargedCents) {
       return res.status(409).json({
         error: 'O valor do frete foi atualizado. Revise e confirme a modalidade novamente.',
         code: 'shipping_changed',
         options: shippingQuote.options,
       });
     }
-    const catalog = shippingQuote.catalog;
+    const catalog = shippingEnabled
+      ? shippingQuote.catalog
+      : new Map((await getCatalogProducts([...new Set(normalizedItems.map((item) => item.id))])).map((product) => [product.id, product]));
     const user = await getAuthenticatedUser(req);
 
     const lineItems = normalizedItems.map((item) => {
@@ -126,7 +129,7 @@ module.exports = async function handler(req, res) {
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       line_items: lineItems,
-      shipping_options: [{
+      ...(shippingEnabled ? { shipping_options: [{
         shipping_rate_data: {
           type: 'fixed_amount',
           fixed_amount: { amount: selectedShipping.chargedCents, currency: 'brl' },
@@ -138,7 +141,7 @@ module.exports = async function handler(req, res) {
             },
           } : {}),
         },
-      }],
+      }] } : {}),
       billing_address_collection: 'auto',
       phone_number_collection: { enabled: true },
       shipping_address_collection: { allowed_countries: ['BR'] },
@@ -150,15 +153,17 @@ module.exports = async function handler(req, res) {
       metadata: {
         store: 'belissima',
         ...(user?.id ? { user_id: user.id } : {}),
-        shipping_provider: shippingQuote.provider,
-        shipping_carrier: selectedShipping.carrier,
-        shipping_service: selectedShipping.service,
-        shipping_service_id: selectedShipping.serviceId,
-        shipping_quote_id: selectedShipping.quoteId,
-        shipping_cost_cents: String(selectedShipping.costCents),
-        shipping_charged_cents: String(selectedShipping.chargedCents),
-        shipping_delivery_days: String(selectedShipping.deliveryDays || ''),
-        shipping_destination_postal_code: shippingQuote.destinationPostalCode,
+        ...(shippingEnabled ? {
+          shipping_provider: shippingQuote.provider,
+          shipping_carrier: selectedShipping.carrier,
+          shipping_service: selectedShipping.service,
+          shipping_service_id: selectedShipping.serviceId,
+          shipping_quote_id: selectedShipping.quoteId,
+          shipping_cost_cents: String(selectedShipping.costCents),
+          shipping_charged_cents: String(selectedShipping.chargedCents),
+          shipping_delivery_days: String(selectedShipping.deliveryDays || ''),
+          shipping_destination_postal_code: shippingQuote.destinationPostalCode,
+        } : {}),
       },
     });
     return res.status(200).json({ url: session.url });

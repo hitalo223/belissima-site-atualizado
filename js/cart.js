@@ -11,6 +11,7 @@
   let shippingOptions = [];
   let quotedPostalCode = '';
   let freeThresholdCents = 19900;
+  let shippingEnabled = false;
 
   function storageKey() {
     return STORAGE_PREFIX + cartOwner;
@@ -219,18 +220,18 @@
         </div>
         <div class="cart-body" id="belissima-cart-items"></div>
         <div class="cart-footer">
-          <div class="cart-free-progress" id="belissima-free-progress">
+          <div class="cart-free-progress" id="belissima-free-progress" data-shipping-ui hidden>
             <div class="cart-free-copy"><span id="belissima-free-copy">Frete grátis a partir de R$ 199</span><b id="belissima-free-remaining"></b></div>
             <div class="cart-progress-track"><span class="cart-progress-fill" id="belissima-progress-fill"></span></div>
           </div>
-          <section class="cart-shipping" aria-labelledby="belissima-shipping-title">
+          <section class="cart-shipping" data-shipping-ui hidden aria-labelledby="belissima-shipping-title">
             <label class="cart-shipping-title" id="belissima-shipping-title" for="belissima-postal-code">Calcule e escolha o frete</label>
             <div class="cart-postal-row"><input id="belissima-postal-code" data-postal-code inputmode="numeric" autocomplete="postal-code" maxlength="9" placeholder="00000-000"><button id="belissima-calculate-shipping" type="button">CALCULAR</button></div>
             <div class="cart-shipping-status" id="belissima-shipping-status" role="status" aria-live="polite"></div>
             <div class="cart-shipping-options" id="belissima-shipping-options"></div>
           </section>
           <div class="cart-total-line"><span>Produtos</span><span id="belissima-cart-subtotal">R$ 0,00</span></div>
-          <div class="cart-total-line"><span>Frete</span><span id="belissima-cart-shipping">A calcular</span></div>
+          <div class="cart-total-line" data-shipping-ui hidden><span>Frete</span><span id="belissima-cart-shipping">A calcular</span></div>
           <div class="cart-total-line"><span>Total</span><strong id="belissima-cart-total">R$ 0,00</strong></div>
           <div class="cart-note">O frete é recalculado com segurança antes do pagamento.</div>
           <button class="cart-checkout" id="belissima-checkout" type="button">FINALIZAR COMPRA</button>
@@ -364,7 +365,7 @@
     if (subtotalEl) subtotalEl.textContent = money(total);
     if (shippingEl) shippingEl.textContent = selectedShipping ? (shippingCents === 0 ? 'Grátis' : money(shippingCents / 100)) : 'A calcular';
     if (totalEl) totalEl.textContent = money((subtotalCents + shippingCents) / 100);
-    if (checkoutBtn) checkoutBtn.disabled = cart.length === 0 || !selectedShipping;
+    if (checkoutBtn) checkoutBtn.disabled = cart.length === 0 || (shippingEnabled && !selectedShipping);
     if (progressFill) progressFill.style.width = `${Math.min(100, (subtotalCents / freeThresholdCents) * 100)}%`;
     if (freeCopy) freeCopy.textContent = subtotalCents >= freeThresholdCents ? 'Você desbloqueou o benefício de frete grátis' : `Frete grátis a partir de ${money(freeThresholdCents / 100)}`;
     if (freeRemaining) freeRemaining.textContent = subtotalCents >= freeThresholdCents ? '✓' : `Faltam ${money((freeThresholdCents - subtotalCents) / 100)}`;
@@ -414,7 +415,7 @@
     const errorEl = document.getElementById('belissima-cart-error');
     const cart = getCart();
     if (!cart.length || !btn) return;
-    if (!selectedShipping || !quotedPostalCode) {
+    if (shippingEnabled && (!selectedShipping || !quotedPostalCode)) {
       errorEl.textContent = 'Calcule o frete e escolha uma modalidade de entrega.';
       errorEl.style.display = 'block';
       document.getElementById('belissima-postal-code')?.focus();
@@ -439,11 +440,11 @@
         headers,
         body: JSON.stringify({
           items: cart.map(({ id, quantity, size, color }) => ({ id, quantity, size, color })),
-          shipping: {
+          ...(shippingEnabled ? { shipping: {
             postalCode: quotedPostalCode,
             serviceId: selectedShipping.serviceId,
             chargedCents: selectedShipping.chargedCents,
-          },
+          } } : {}),
         }),
       });
       const data = await response.json();
@@ -496,7 +497,9 @@
     render();
     setupCartOwner();
     window.BelissimaShipping?.getConfig().then((config) => {
+      shippingEnabled = config.enabled === true;
       freeThresholdCents = Number(config.freeShippingThresholdCents || 19900);
+      document.querySelectorAll('#belissima-cart-drawer [data-shipping-ui]').forEach((element) => { element.hidden = !shippingEnabled; });
       render();
     });
   }
