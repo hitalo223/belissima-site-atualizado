@@ -6,6 +6,7 @@
   let editingProduct = null;
   let editingCategory = null;
   let productImages = [];
+  let productHoverMedia = '';
   let categoryImage = '';
 
   const $ = (selector, root = document) => root.querySelector(selector);
@@ -184,6 +185,7 @@
   function openProductModal(id = '') {
     editingProduct = state.products.find((product) => product.id === id) || null;
     productImages = [...(editingProduct?.image_urls || [])];
+    productHoverMedia = editingProduct?.hover_media_url || '';
     const form = $('#product-form');
     form.reset();
     $('#product-modal-title').textContent = editingProduct ? 'Editar produto' : 'Novo produto';
@@ -200,7 +202,19 @@
     form.active.checked = editingProduct ? editingProduct.active : true;
     form.featured.checked = editingProduct?.featured || false;
     renderImagePreview($('#product-image-preview'), productImages, 'product');
+    renderHoverMediaPreview();
     $('#product-modal').showModal();
+  }
+
+  function renderHoverMediaPreview() {
+    const container = $('#product-hover-preview');
+    container.innerHTML = productHoverMedia
+      ? `<span class="admin-preview-item"><img src="${escapeHtml(productHoverMedia)}" alt="GIF atual"><button type="button" id="remove-product-hover" aria-label="Remover GIF">×</button></span>`
+      : '';
+    $('#remove-product-hover')?.addEventListener('click', () => {
+      productHoverMedia = '';
+      renderHoverMediaPreview();
+    });
   }
 
   function openCategoryModal(id = '') {
@@ -243,7 +257,8 @@
     try {
       const files = [...form.images.files];
       if (files.length) productImages.push(...await uploadFiles(files, `products/${id}`));
-      const payload = { id, category_id: form.category_id.value, name: form.elements.name.value.trim(), description: form.description.value.trim() || null, price_cents: Math.round(Number(form.price.value) * 100), badge: form.badge.value.trim() || null, colors: form.colors.value.split(',').map((item) => item.trim()).filter(Boolean), sizes: form.sizes.value.split(',').map((item) => item.trim()).filter(Boolean), image_urls: productImages, stock_quantity: form.stock_quantity.value === '' ? null : Number(form.stock_quantity.value), active: form.active.checked, featured: form.featured.checked };
+      if (form.hover_media.files[0]) productHoverMedia = (await uploadFiles([form.hover_media.files[0]], `products/${id}/hover`))[0];
+      const payload = { id, category_id: form.category_id.value, name: form.elements.name.value.trim(), description: form.description.value.trim() || null, price_cents: Math.round(Number(form.price.value) * 100), badge: form.badge.value.trim() || null, colors: form.colors.value.split(',').map((item) => item.trim()).filter(Boolean), sizes: form.sizes.value.split(',').map((item) => item.trim()).filter(Boolean), image_urls: productImages, hover_media_url: productHoverMedia || null, stock_quantity: form.stock_quantity.value === '' ? null : Number(form.stock_quantity.value), active: form.active.checked, featured: form.featured.checked };
       const query = editingProduct ? client.from('products').update(payload).eq('id', id) : client.from('products').insert(payload);
       const { error } = await query;
       if (error) throw error;

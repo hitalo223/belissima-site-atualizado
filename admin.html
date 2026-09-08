@@ -116,6 +116,8 @@
         <label class="span-2">Descrição<textarea name="description" rows="3"></textarea></label>
         <label class="span-2">Imagens<input name="images" type="file" accept="image/jpeg,image/png,image/webp,image/avif" multiple><small>Até 5 MB por imagem. As imagens atuais são mantidas se nenhum arquivo for escolhido.</small></label>
         <div class="admin-image-preview span-2" id="product-image-preview"></div>
+        <label class="span-2">GIF ao passar o mouse (opcional)<input name="hover_media" type="file" accept="image/gif"><small>Quando enviado, o GIF aparece nos cards da loja no lugar da sequência de fotos.</small></label>
+        <div class="admin-image-preview span-2" id="product-hover-preview"></div>
         <label class="admin-check"><input name="active" type="checkbox" checked> Produto ativo na loja</label>
         <label class="admin-check"><input name="featured" type="checkbox"> Mostrar em lançamentos</label>
       </div>
@@ -141,6 +143,6 @@
 
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
-  <script src="js/admin.js?v=1"></script>
+  <script src="js/admin.js?v=2"></script>
 </body>
 </html>

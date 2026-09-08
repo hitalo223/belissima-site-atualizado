@@ -22,17 +22,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   grid.innerHTML = products.map((p, i) => `
-    <a class="prod-card reveal" style="transition-delay:${(i * 0.08).toFixed(2)}s" href="produto.html?id=${p.id}">
+    <a class="prod-card reveal" data-product-id="${catalogEscape(p.id)}" style="transition-delay:${(i * 0.08).toFixed(2)}s" href="produto.html?id=${p.id}">
       <div class="prod-img">
         ${p.badge ? `<span class="badge">${catalogEscape(p.badge)}</span>` : ''}
-        ${catalogImageUrl(p)
-          ? `<img src="${catalogEscape(catalogImageUrl(p))}" alt="${catalogEscape(p.name)}" loading="lazy">`
-          : '<span class="placeholder-note">[foto produto]</span>'}
+        ${catalogProductCardMedia(p)}
       </div>
       <div class="p-name">${catalogEscape(p.name)}</div>
       <div class="p-price">R$ ${p.price.toFixed(2).replace('.', ',')}</div>
     </a>
   `).join('');
+  setupProductCardHover(grid);
 
   // Reaplica a animação de scroll-reveal nos cards recém-criados via JS
   // (o reveal.js já rodou no DOMContentLoaded antes desses elementos existirem)

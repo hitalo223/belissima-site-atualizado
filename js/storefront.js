@@ -21,16 +21,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     const featured = PRODUCTS.filter((product) => product.featured).slice(0, 8);
     const products = featured.length ? featured : PRODUCTS.slice(0, 4);
     featuredGrid.innerHTML = products.map((product, index) => `
-      <a class="prod-card reveal revealed" style="transition-delay:${(index * .08).toFixed(2)}s" href="produto.html?id=${encodeURIComponent(product.id)}">
+      <a class="prod-card reveal revealed" data-product-id="${catalogEscape(product.id)}" style="transition-delay:${(index * .08).toFixed(2)}s" href="produto.html?id=${encodeURIComponent(product.id)}">
         <div class="prod-img">
           ${product.badge ? `<span class="badge">${catalogEscape(product.badge)}</span>` : ''}
-          ${catalogImageUrl(product)
-            ? `<img src="${catalogEscape(catalogImageUrl(product))}" alt="${catalogEscape(product.name)}" loading="lazy">`
-            : '<span class="placeholder-note">[foto produto]</span>'}
+          ${catalogProductCardMedia(product)}
         </div>
         <div class="p-name">${catalogEscape(product.name)}</div>
         <div class="p-price">${Number(product.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</div>
       </a>
     `).join('');
+    setupProductCardHover(featuredGrid);
   }
 });

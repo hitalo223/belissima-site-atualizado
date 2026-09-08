@@ -325,7 +325,23 @@ main { flex:1; padding:40px 40px 0; }
   transition: transform .35s ease;
 }
 .prod-card:hover .prod-img { transform: scale(1.03); }
-.prod-img > img,
+.prod-card-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .38s cubic-bezier(.4,0,.2,1), opacity .32s ease;
+}
+.prod-card-media-primary { transform: translateX(0); }
+.prod-card-media-next { transform: translateX(100%); }
+.prod-img.is-media-sliding .prod-card-media-primary { transform: translateX(-100%); }
+.prod-img.is-media-sliding .prod-card-media-next { transform: translateX(0); }
+.prod-img.is-media-resetting .prod-card-media { transition: none; }
+.prod-card-hover-media { opacity: 0; transform: scale(1.035); }
+.prod-card.has-hover-media:hover .prod-card-media-primary { opacity: 0; }
+.prod-card.has-hover-media:hover .prod-card-hover-media { opacity: 1; transform: scale(1); }
+.prod-img > img:not(.prod-card-media),
 .cat-card > img {
   width: 100%;
   height: 100%;
@@ -340,6 +356,7 @@ main { flex:1; padding:40px 40px 0; }
   letter-spacing:1px;
   padding:4px 9px;
   border-radius:2px;
+  z-index:3;
 }
 .prod-card .p-name { font-size:13.5px; color:#604C43; margin-bottom:4px; }
 .prod-card .p-price { font-size:14px; color:#C0304F; font-weight:700; }

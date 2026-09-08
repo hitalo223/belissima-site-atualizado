@@ -26,12 +26,40 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   const gallery = document.querySelector('.pdp-gallery');
+  let showGalleryImage = () => {};
   if (gallery && product.images?.length) {
-    gallery.innerHTML = product.images.slice(0, 4).map((url, index) => `
-      <div class="g-img has-image">
-        <img src="${catalogEscape(url)}" alt="${catalogEscape(product.name)} — imagem ${index + 1}"${index === 0 ? ' id="pdp-primary-image"' : ''}>
+    gallery.innerHTML = `
+      <div class="pdp-carousel-stage">
+        <img id="pdp-primary-image" src="${catalogEscape(product.images[0])}" alt="${catalogEscape(product.name)} — imagem 1">
+        <button type="button" class="pdp-carousel-arrow prev" aria-label="Imagem anterior">‹</button>
+        <button type="button" class="pdp-carousel-arrow next" aria-label="Próxima imagem">›</button>
+        <span class="pdp-carousel-count" aria-live="polite">1 / ${product.images.length}</span>
       </div>
-    `).join('');
+      <div class="pdp-carousel-thumbs" aria-label="Imagens do produto">
+        ${product.images.map((url, index) => `<button type="button" class="pdp-carousel-thumb${index === 0 ? ' active' : ''}" data-image-index="${index}" aria-label="Ver imagem ${index + 1}"><img src="${catalogEscape(url)}" alt="" loading="lazy"></button>`).join('')}
+      </div>`;
+    let currentImage = 0;
+    const primaryImage = document.getElementById('pdp-primary-image');
+    const count = gallery.querySelector('.pdp-carousel-count');
+    const thumbStrip = gallery.querySelector('.pdp-carousel-thumbs');
+    const thumbs = [...gallery.querySelectorAll('.pdp-carousel-thumb')];
+    showGalleryImage = (index) => {
+      currentImage = (index + product.images.length) % product.images.length;
+      primaryImage.classList.add('changing');
+      window.setTimeout(() => {
+        primaryImage.src = product.images[currentImage];
+        primaryImage.alt = `${product.name} — imagem ${currentImage + 1}`;
+        count.textContent = `${currentImage + 1} / ${product.images.length}`;
+        thumbs.forEach((thumb, thumbIndex) => thumb.classList.toggle('active', thumbIndex === currentImage));
+        const activeThumb = thumbs[currentImage];
+        if (activeThumb) thumbStrip.scrollTo({ left: activeThumb.offsetLeft - thumbStrip.clientWidth / 2 + activeThumb.offsetWidth / 2, behavior: 'smooth' });
+        primaryImage.classList.remove('changing');
+      }, 130);
+    };
+    gallery.querySelector('.prev').addEventListener('click', () => showGalleryImage(currentImage - 1));
+    gallery.querySelector('.next').addEventListener('click', () => showGalleryImage(currentImage + 1));
+    thumbs.forEach((thumb) => thumb.addEventListener('click', () => showGalleryImage(Number(thumb.dataset.imageIndex))));
+    if (product.images.length === 1) gallery.classList.add('single-image');
   }
 
   // ---- Cores ----
@@ -53,11 +81,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       el.classList.add('active');
       if (selectedColor) selectedColor.textContent = el.dataset.color;
       const image = product.images?.[Number(el.dataset.colorIndex)];
-      const primaryImage = document.getElementById('pdp-primary-image');
-      if (image && primaryImage) {
-        primaryImage.src = image;
-        primaryImage.alt = `${product.name} — ${el.dataset.color}`;
-      }
+      if (image) showGalleryImage(Number(el.dataset.colorIndex));
     });
   });
 
@@ -110,15 +134,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   const related = getProductsByCategory(product.category).filter((p) => p.id !== product.id).slice(0, 4);
   const relatedGrid = document.getElementById('related-grid');
   relatedGrid.innerHTML = related.map((p) => `
-    <a class="prod-card" href="produto.html?id=${p.id}">
+    <a class="prod-card" data-product-id="${catalogEscape(p.id)}" href="produto.html?id=${p.id}">
       <div class="prod-img">
         ${p.badge ? `<span class="badge">${catalogEscape(p.badge)}</span>` : ''}
-        ${catalogImageUrl(p)
-          ? `<img src="${catalogEscape(catalogImageUrl(p))}" alt="${catalogEscape(p.name)}" loading="lazy">`
-          : '<span class="placeholder-note">[foto produto]</span>'}
+        ${catalogProductCardMedia(p)}
       </div>
       <div class="p-name">${catalogEscape(p.name)}</div>
       <div class="p-price">R$ ${p.price.toFixed(2).replace('.', ',')}</div>
     </a>
   `).join('');
+  setupProductCardHover(relatedGrid);
 });

@@ -72,6 +72,67 @@ function catalogImageUrl(product) {
   return Array.isArray(product?.images) && product.images.length ? product.images[0] : '';
 }
 
+function catalogProductCardMedia(product) {
+  const images = Array.isArray(product?.images) ? product.images.filter(Boolean) : [];
+  if (!images.length) return '<span class="placeholder-note">[foto produto]</span>';
+  const first = catalogEscape(images[0]);
+  const alt = catalogEscape(product.name);
+  const hover = product.hoverMediaUrl
+    ? `<img class="prod-card-media prod-card-hover-media" src="${catalogEscape(product.hoverMediaUrl)}" alt="" loading="lazy">`
+    : images.length > 1
+      ? `<img class="prod-card-media prod-card-media-next" src="${catalogEscape(images[1])}" alt="" loading="lazy">`
+      : '';
+  return `<img class="prod-card-media prod-card-media-primary" src="${first}" alt="${alt}" loading="lazy">${hover}`;
+}
+
+function setupProductCardHover(root = document) {
+  root.querySelectorAll('.prod-card[data-product-id]').forEach((card) => {
+    if (card.dataset.mediaReady === 'true') return;
+    card.dataset.mediaReady = 'true';
+    const product = getProductById(card.dataset.productId);
+    const images = Array.isArray(product?.images) ? product.images.filter(Boolean) : [];
+    if (product?.hoverMediaUrl) {
+      card.classList.add('has-hover-media');
+      return;
+    }
+    if (images.length < 2) return;
+
+    const media = card.querySelector('.prod-img');
+    const primary = card.querySelector('.prod-card-media-primary');
+    const next = card.querySelector('.prod-card-media-next');
+    let index = 0;
+    let timer = 0;
+
+    const advance = () => {
+      const nextIndex = (index + 1) % images.length;
+      next.src = images[nextIndex];
+      media.classList.add('is-media-sliding');
+      timer = window.setTimeout(() => {
+        index = nextIndex;
+        primary.src = images[index];
+        media.classList.add('is-media-resetting');
+        media.classList.remove('is-media-sliding');
+        window.requestAnimationFrame(() => window.requestAnimationFrame(() => media.classList.remove('is-media-resetting')));
+        timer = window.setTimeout(advance, 850);
+      }, 380);
+    };
+
+    card.addEventListener('mouseenter', () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(advance, 220);
+    });
+    card.addEventListener('mouseleave', () => {
+      window.clearTimeout(timer);
+      index = 0;
+      media.classList.add('is-media-resetting');
+      media.classList.remove('is-media-sliding');
+      primary.src = images[0];
+      next.src = images[1];
+      window.requestAnimationFrame(() => window.requestAnimationFrame(() => media.classList.remove('is-media-resetting')));
+    });
+  });
+}
+
 function catalogEscape(value) {
   return String(value ?? '').replace(/[&<>'"]/g, (char) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
@@ -100,7 +161,7 @@ async function loadCatalogData() {
 
     const [categoryResult, productResult] = await Promise.all([
       client.from('categories').select('id,name,description,image_url,sort_order,active').order('sort_order'),
-      client.from('products').select('id,category_id,name,description,price_cents,badge,colors,sizes,image_urls,stock_quantity,active,featured,created_at').order('created_at'),
+      client.from('products').select('id,category_id,name,description,price_cents,badge,colors,sizes,image_urls,hover_media_url,stock_quantity,active,featured,created_at').order('created_at'),
     ]);
 
     if (categoryResult.error || productResult.error) {
@@ -118,6 +179,7 @@ async function loadCatalogData() {
       colors: Array.isArray(product.colors) ? product.colors : [],
       sizes: Array.isArray(product.sizes) ? product.sizes : [],
       images: Array.isArray(product.image_urls) ? product.image_urls : [],
+      hoverMediaUrl: product.hover_media_url || '',
       stockQuantity: product.stock_quantity,
       active: product.active !== false,
       featured: product.featured === true,
