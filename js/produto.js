@@ -29,20 +29,35 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (gallery && product.images?.length) {
     gallery.innerHTML = product.images.slice(0, 4).map((url, index) => `
       <div class="g-img has-image">
-        <img src="${catalogEscape(url)}" alt="${catalogEscape(product.name)} — imagem ${index + 1}">
+        <img src="${catalogEscape(url)}" alt="${catalogEscape(product.name)} — imagem ${index + 1}"${index === 0 ? ' id="pdp-primary-image"' : ''}>
       </div>
     `).join('');
   }
 
   // ---- Cores ----
   const colorWrap = document.getElementById('color-options');
-  colorWrap.innerHTML = product.colors.map((c, i) =>
-    `<div class="color-swatch${i === 0 ? ' active' : ''}" style="background:${c}" data-color="${c}"></div>`
+  const colors = product.colors.map((entry, index) => {
+    const separator = entry.indexOf('|');
+    return separator > 0
+      ? { name: entry.slice(0, separator), value: entry.slice(separator + 1) }
+      : { name: `Cor ${index + 1}`, value: entry };
+  });
+  const selectedColor = document.getElementById('selected-color-name');
+  if (selectedColor) selectedColor.textContent = colors[0]?.name || '';
+  colorWrap.innerHTML = colors.map((color, i) =>
+    `<button type="button" class="color-swatch${i === 0 ? ' active' : ''}" style="background:${catalogEscape(color.value)}" data-color="${catalogEscape(color.name)}" data-color-index="${i}" aria-label="${catalogEscape(color.name)}" title="${catalogEscape(color.name)}"></button>`
   ).join('');
   colorWrap.querySelectorAll('.color-swatch').forEach((el) => {
     el.addEventListener('click', () => {
       colorWrap.querySelectorAll('.color-swatch').forEach((s) => s.classList.remove('active'));
       el.classList.add('active');
+      if (selectedColor) selectedColor.textContent = el.dataset.color;
+      const image = product.images?.[Number(el.dataset.colorIndex)];
+      const primaryImage = document.getElementById('pdp-primary-image');
+      if (image && primaryImage) {
+        primaryImage.src = image;
+        primaryImage.alt = `${product.name} — ${el.dataset.color}`;
+      }
     });
   });
 
@@ -88,6 +103,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       item.classList.toggle('open');
     });
   });
+  const description = document.querySelector('#acc-1 .acc-body');
+  if (description && product.description) description.textContent = product.description;
 
   // ---- Veja também: outros produtos da mesma categoria ----
   const related = getProductsByCategory(product.category).filter((p) => p.id !== product.id).slice(0, 4);
