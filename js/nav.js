@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 (function loadCart() {
   if (document.querySelector('script[data-belissima-cart]')) return;
   const script = document.createElement('script');
-  script.src = 'js/cart.js';
+  script.src = 'js/cart.js?v=shipping-1';
   script.defer = true;
   script.dataset.belissimaCart = 'true';
   document.body.appendChild(script);

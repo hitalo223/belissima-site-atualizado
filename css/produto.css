@@ -140,7 +140,9 @@
 .add-to-bag:hover { transform: translateY(-2px); background: #a8263f; }
 .add-to-bag.added { background: #604C43; }
 
-.cep-check { display: flex; gap: 8px; margin-bottom: 26px; }
+.shipping-calculator{margin-bottom:26px;padding:18px;border:1px solid rgba(96,76,67,.14);background:rgba(255,255,255,.34)}
+.shipping-calculator>label{display:block;margin-bottom:11px;color:#604C43;font-size:12px;font-weight:600;letter-spacing:.04em}
+.cep-check { display: flex; gap: 8px; }
 .cep-check input {
   flex: 1;
   padding: 10px 12px;
@@ -178,3 +180,7 @@
   .pdp-gallery { position: static; width: 100%; }
   .pdp-carousel-arrow { width: 40px; height: 40px; }
 }
+.cep-check button:disabled{cursor:wait;opacity:.58}
+.shipping-status{min-height:0;margin-top:0;color:#8a7568;font-size:11px;line-height:1.5}
+.shipping-status:not(:empty){margin-top:10px}.shipping-status.error{color:#a8263f}.shipping-status.success{color:#6d7e5b}
+.shipping-options{display:grid;gap:8px;margin-top:10px}.shipping-option-card{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px;border:1px solid rgba(96,76,67,.12);background:#fff}.shipping-option-card div{display:grid;gap:3px}.shipping-option-card strong{color:#604C43;font-size:11px}.shipping-option-card span{color:#8a7568;font-size:10px}.shipping-option-card>b{color:#604C43;font-size:12px;white-space:nowrap}.shipping-option-card>b.free{color:#C0304F}

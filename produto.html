@@ -6,12 +6,12 @@
 <title id="page-title">Produto — Belíssima Moda Íntima</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@300;400;500;600;700&family=Cormorant+Garamond:ital@1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=4">
-<link rel="stylesheet" href="css/produto.css?v=4">
+<link rel="stylesheet" href="css/style.css?v=5">
+<link rel="stylesheet" href="css/produto.css?v=5">
 </head>
 <body>
 
-  <div class="announce">Frete grátis para todo o Brasil em compras acima de R$399 · 10% OFF na primeira compra</div>
+  <div class="announce">Frete grátis para todo o Brasil em compras a partir de R$ 199 · 10% OFF na primeira compra</div>
 
   <header>
     <button class="menu-toggle" type="button" aria-label="Abrir menu de categorias">☰</button>
@@ -95,10 +95,15 @@
         <button class="add-to-bag" id="add-to-bag">ADICIONAR À SACOLA</button>
       </div>
 
-      <div class="cep-check">
-        <input type="text" placeholder="Digite seu CEP" maxlength="9">
-        <button>OK</button>
-      </div>
+      <section class="shipping-calculator" aria-labelledby="shipping-title">
+        <label id="shipping-title" for="product-postal-code">Calcule o frete e o prazo</label>
+        <div class="cep-check">
+          <input id="product-postal-code" data-postal-code type="text" inputmode="numeric" autocomplete="postal-code" placeholder="Digite seu CEP" maxlength="9" aria-describedby="product-shipping-status">
+          <button id="product-shipping-button" type="button">CALCULAR</button>
+        </div>
+        <div class="shipping-status" id="product-shipping-status" role="status" aria-live="polite"></div>
+        <div class="shipping-options" id="product-shipping-options"></div>
+      </section>
 
       <div class="accordion-item" id="acc-1">
         <div class="acc-head"><span>Sobre a peça</span><span class="chevron">⌄</span></div>
@@ -155,8 +160,9 @@
     <div class="footer-bottom">Belíssima Moda Íntima © 2026 — Todos os direitos reservados</div>
   </footer>
 
+  <script src="js/shipping-ui.js?v=1"></script>
   <script src="js/products-data.js?v=3"></script>
-  <script src="js/produto.js?v=4"></script>
+  <script src="js/produto.js?v=5"></script>
   <script src="js/nav.js?v=2"></script>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>

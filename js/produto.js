@@ -109,6 +109,48 @@ document.addEventListener('DOMContentLoaded', async () => {
     qtyValue.textContent = qty;
   });
 
+  // ---- Cotação real de frete ----
+  const postalInput = document.getElementById('product-postal-code');
+  const shippingButton = document.getElementById('product-shipping-button');
+  const shippingStatus = document.getElementById('product-shipping-status');
+  const shippingOptions = document.getElementById('product-shipping-options');
+  if (postalInput && shippingButton && window.BelissimaShipping) {
+    const calculateProductShipping = async () => {
+      const postalCode = BelissimaShipping.normalizePostalCode(postalInput.value);
+      shippingOptions.innerHTML = '';
+      if (postalCode.length !== 8) {
+        shippingStatus.className = 'shipping-status error';
+        shippingStatus.textContent = 'Digite um CEP válido com 8 números.';
+        postalInput.focus();
+        return;
+      }
+      shippingButton.disabled = true;
+      shippingButton.textContent = 'CALCULANDO…';
+      shippingStatus.className = 'shipping-status loading';
+      shippingStatus.textContent = 'Consultando transportadoras…';
+      try {
+        const quote = await BelissimaShipping.quote(postalCode, [{ id: product.id, quantity: qty }]);
+        shippingStatus.className = 'shipping-status success';
+        shippingStatus.textContent = `${quote.options.length} ${quote.options.length === 1 ? 'opção encontrada' : 'opções encontradas'} para ${BelissimaShipping.formatPostalCode(postalCode)}.`;
+        shippingOptions.innerHTML = quote.options.map((option) => `
+          <article class="shipping-option-card">
+            <div><strong>${catalogEscape(option.service)}</strong><span>${catalogEscape(option.carrier)} · ${BelissimaShipping.deliveryText(option.deliveryDays)}</span></div>
+            <b class="${option.free ? 'free' : ''}">${BelissimaShipping.optionPrice(option)}</b>
+          </article>`).join('');
+      } catch (error) {
+        shippingStatus.className = 'shipping-status error';
+        shippingStatus.textContent = error.message;
+      } finally {
+        shippingButton.disabled = false;
+        shippingButton.textContent = 'CALCULAR';
+      }
+    };
+    shippingButton.addEventListener('click', calculateProductShipping);
+    postalInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') { event.preventDefault(); calculateProductShipping(); }
+    });
+  }
+
   // ---- Adicionar à sacola (visual apenas — sem carrinho real ainda) ----
   const addBtn = document.getElementById('add-to-bag');
   addBtn.addEventListener('click', () => {

@@ -160,7 +160,15 @@
     const query = $('#order-search').value.trim().toLowerCase();
     const payment = $('#order-payment-filter').value;
     const orders = state.orders.filter((order) => (!query || `${order.id} ${order.customer_name || ''} ${order.customer_email || ''}`.toLowerCase().includes(query)) && (!payment || order.payment_status === payment));
-    $('#orders-body').innerHTML = orders.map((order) => `<tr><td>#${escapeHtml(order.id.slice(0, 8).toUpperCase())}</td><td><div class="admin-product-cell"><div><b>${escapeHtml(order.customer_name || 'Cliente')}</b><small>${escapeHtml(order.customer_email || '—')}</small></div></div></td><td>${date(order.created_at)}</td><td>${money(order.amount_total)}</td><td>${statusLabel(order.payment_status, 'payment')}</td><td><select class="admin-order-status" data-order-status="${escapeHtml(order.id)}">${[['pending','Pendente'],['processing','Em separação'],['shipped','Enviado'],['delivered','Entregue'],['cancelled','Cancelado']].map(([value,label]) => `<option value="${value}" ${order.fulfillment_status === value ? 'selected' : ''}>${label}</option>`).join('')}</select></td></tr>`).join('') || '<tr><td colspan="6">Nenhum pedido encontrado.</td></tr>';
+    $('#orders-body').innerHTML = orders.map((order) => {
+      const delivery = order.shipping_service
+        ? `<div class="admin-product-cell"><div><b>${escapeHtml(order.shipping_carrier || 'Transportadora')} · ${escapeHtml(order.shipping_service)}</b><small>${escapeHtml(order.shipping_destination_postal_code || '')}${order.shipping_delivery_days ? ` · até ${order.shipping_delivery_days} dias úteis` : ''}</small></div></div>`
+        : '—';
+      const label = order.shipping_label_status === 'created' || order.shipping_label_status === 'printed'
+        ? '<span class="admin-status good">Gerada</span>'
+        : '<span class="admin-status warn">Não gerada</span>';
+      return `<tr><td>#${escapeHtml(order.id.slice(0, 8).toUpperCase())}</td><td><div class="admin-product-cell"><div><b>${escapeHtml(order.customer_name || 'Cliente')}</b><small>${escapeHtml(order.customer_email || '—')}</small></div></div></td><td>${date(order.created_at)}</td><td>${money(order.amount_total)}</td><td>${statusLabel(order.payment_status, 'payment')}</td><td>${delivery}</td><td>${label}</td><td><select class="admin-order-status" data-order-status="${escapeHtml(order.id)}">${[['pending','Pendente'],['processing','Em separação'],['shipped','Enviado'],['delivered','Entregue'],['cancelled','Cancelado']].map(([value,label]) => `<option value="${value}" ${order.fulfillment_status === value ? 'selected' : ''}>${label}</option>`).join('')}</select></td></tr>`;
+    }).join('') || '<tr><td colspan="8">Nenhum pedido encontrado.</td></tr>';
     $$('[data-order-status]').forEach((select) => select.addEventListener('change', () => updateOrderStatus(select.dataset.orderStatus, select.value)));
   }
 
@@ -195,6 +203,10 @@
     form.category_id.value = editingProduct?.category_id || state.categories[0]?.id || '';
     form.price.value = editingProduct ? (Number(editingProduct.price_cents) / 100).toFixed(2) : '';
     form.stock_quantity.value = editingProduct?.stock_quantity ?? '';
+    form.weight_kg.value = editingProduct?.weight_kg ?? '';
+    form.height_cm.value = editingProduct?.height_cm ?? '';
+    form.width_cm.value = editingProduct?.width_cm ?? '';
+    form.length_cm.value = editingProduct?.length_cm ?? '';
     form.badge.value = editingProduct?.badge || '';
     form.sizes.value = (editingProduct?.sizes || []).join(', ');
     form.colors.value = (editingProduct?.colors || []).join(', ');
@@ -258,7 +270,7 @@
       const files = [...form.images.files];
       if (files.length) productImages.push(...await uploadFiles(files, `products/${id}`));
       if (form.hover_media.files[0]) productHoverMedia = (await uploadFiles([form.hover_media.files[0]], `products/${id}/hover`))[0];
-      const payload = { id, category_id: form.category_id.value, name: form.elements.name.value.trim(), description: form.description.value.trim() || null, price_cents: Math.round(Number(form.price.value) * 100), badge: form.badge.value.trim() || null, colors: form.colors.value.split(',').map((item) => item.trim()).filter(Boolean), sizes: form.sizes.value.split(',').map((item) => item.trim()).filter(Boolean), image_urls: productImages, hover_media_url: productHoverMedia || null, stock_quantity: form.stock_quantity.value === '' ? null : Number(form.stock_quantity.value), active: form.active.checked, featured: form.featured.checked };
+      const payload = { id, category_id: form.category_id.value, name: form.elements.name.value.trim(), description: form.description.value.trim() || null, price_cents: Math.round(Number(form.price.value) * 100), badge: form.badge.value.trim() || null, colors: form.colors.value.split(',').map((item) => item.trim()).filter(Boolean), sizes: form.sizes.value.split(',').map((item) => item.trim()).filter(Boolean), image_urls: productImages, hover_media_url: productHoverMedia || null, stock_quantity: form.stock_quantity.value === '' ? null : Number(form.stock_quantity.value), weight_kg: Number(form.weight_kg.value), height_cm: Number(form.height_cm.value), width_cm: Number(form.width_cm.value), length_cm: Number(form.length_cm.value), active: form.active.checked, featured: form.featured.checked };
       const query = editingProduct ? client.from('products').update(payload).eq('id', id) : client.from('products').insert(payload);
       const { error } = await query;
       if (error) throw error;

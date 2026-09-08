@@ -1,5 +1,6 @@
 // Vercel Function: cria uma sessão segura usando preços do catálogo no Supabase.
 const Stripe = require('stripe');
+const { calculateShipping, ShippingError } = require('../lib/shipping');
 
 const STRIPE_API_VERSION = '2026-07-29.dahlia';
 const INTEGRATION_IDENTIFIER = 'belissima_checkout_nqvszklt';
@@ -18,20 +19,6 @@ function getOrigin(req) {
 
 function cleanOption(value) {
   return value ? String(value).slice(0, 40) : '';
-}
-
-function serviceHeaders() {
-  const serviceRole = requiredEnv('SUPABASE_SERVICE_ROLE_KEY');
-  return { apikey: serviceRole, Authorization: `Bearer ${serviceRole}` };
-}
-
-async function getCatalog(ids) {
-  const baseUrl = requiredEnv('SUPABASE_URL').replace(/\/$/, '');
-  const encodedIds = ids.map((id) => `"${id}"`).join(',');
-  const url = `${baseUrl}/rest/v1/products?select=id,name,price_cents,active,stock_quantity&id=in.(${encodeURIComponent(encodedIds)})`;
-  const response = await fetch(url, { headers: serviceHeaders() });
-  if (!response.ok) throw new Error(`Falha ao consultar catálogo (${response.status}).`);
-  return response.json();
 }
 
 async function getAuthenticatedUser(req) {
@@ -84,10 +71,32 @@ module.exports = async function handler(req, res) {
     });
   }
 
+  const requestedShipping = body.shipping || {};
+  const postalCode = String(requestedShipping.postalCode || '');
+  const serviceId = String(requestedShipping.serviceId || '');
+  if (!postalCode || !serviceId) {
+    return res.status(400).json({ error: 'Calcule o frete e escolha uma modalidade de entrega.' });
+  }
+
   try {
-    const ids = [...new Set(normalizedItems.map((item) => item.id))];
-    const products = await getCatalog(ids);
-    const catalog = new Map(products.map((product) => [product.id, product]));
+    const shippingQuote = await calculateShipping({ postalCode, items: normalizedItems });
+    const selectedShipping = shippingQuote.options.find((option) => option.serviceId === serviceId);
+    if (!selectedShipping) {
+      return res.status(409).json({
+        error: 'A modalidade escolhida mudou. Calcule o frete novamente.',
+        code: 'shipping_changed',
+        options: shippingQuote.options,
+      });
+    }
+    const expectedCharge = Number(requestedShipping.chargedCents);
+    if (Number.isInteger(expectedCharge) && expectedCharge !== selectedShipping.chargedCents) {
+      return res.status(409).json({
+        error: 'O valor do frete foi atualizado. Revise e confirme a modalidade novamente.',
+        code: 'shipping_changed',
+        options: shippingQuote.options,
+      });
+    }
+    const catalog = shippingQuote.catalog;
     const user = await getAuthenticatedUser(req);
 
     const lineItems = normalizedItems.map((item) => {
@@ -117,6 +126,19 @@ module.exports = async function handler(req, res) {
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       line_items: lineItems,
+      shipping_options: [{
+        shipping_rate_data: {
+          type: 'fixed_amount',
+          fixed_amount: { amount: selectedShipping.chargedCents, currency: 'brl' },
+          display_name: `${selectedShipping.carrier} · ${selectedShipping.service}`.slice(0, 100),
+          ...(selectedShipping.deliveryDays ? {
+            delivery_estimate: {
+              minimum: { unit: 'business_day', value: selectedShipping.deliveryDays },
+              maximum: { unit: 'business_day', value: selectedShipping.deliveryDays + 2 },
+            },
+          } : {}),
+        },
+      }],
       billing_address_collection: 'auto',
       phone_number_collection: { enabled: true },
       shipping_address_collection: { allowed_countries: ['BR'] },
@@ -125,14 +147,28 @@ module.exports = async function handler(req, res) {
       cancel_url: `${origin}/loja.html`,
       integration_identifier: INTEGRATION_IDENTIFIER,
       ...(user?.email ? { customer_email: user.email } : {}),
-      metadata: { store: 'belissima', ...(user?.id ? { user_id: user.id } : {}) },
+      metadata: {
+        store: 'belissima',
+        ...(user?.id ? { user_id: user.id } : {}),
+        shipping_provider: shippingQuote.provider,
+        shipping_carrier: selectedShipping.carrier,
+        shipping_service: selectedShipping.service,
+        shipping_service_id: selectedShipping.serviceId,
+        shipping_quote_id: selectedShipping.quoteId,
+        shipping_cost_cents: String(selectedShipping.costCents),
+        shipping_charged_cents: String(selectedShipping.chargedCents),
+        shipping_delivery_days: String(selectedShipping.deliveryDays || ''),
+        shipping_destination_postal_code: shippingQuote.destinationPostalCode,
+      },
     });
     return res.status(200).json({ url: session.url });
   } catch (error) {
     console.error('[Belíssima/Stripe] Falha ao criar Checkout Session', { message: error?.message });
+    const knownShippingError = error instanceof ShippingError;
     const isCatalogError = /Produto indisponível|Estoque insuficiente/.test(error?.message || '');
-    return res.status(isCatalogError ? 409 : 400).json({
-      error: isCatalogError ? error.message : 'Não foi possível iniciar o checkout. Tente novamente.',
+    return res.status(knownShippingError ? error.status : isCatalogError ? 409 : 400).json({
+      error: knownShippingError || isCatalogError ? error.message : 'Não foi possível iniciar o checkout. Tente novamente.',
+      ...(knownShippingError ? { code: error.code } : {}),
     });
   }
 };

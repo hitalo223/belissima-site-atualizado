@@ -81,6 +81,16 @@ async function persistOrder(stripe, session) {
     payment_status: session.payment_status || 'unpaid',
     fulfillment_status: 'pending',
     shipping_address: shipping || customer.address || null,
+    shipping_provider: session.metadata?.shipping_provider || null,
+    shipping_carrier: session.metadata?.shipping_carrier || null,
+    shipping_service: session.metadata?.shipping_service || null,
+    shipping_service_id: session.metadata?.shipping_service_id || null,
+    shipping_quote_id: session.metadata?.shipping_quote_id || null,
+    shipping_cost_cents: Number(session.metadata?.shipping_cost_cents || 0),
+    shipping_charged_cents: Number(session.metadata?.shipping_charged_cents || 0),
+    shipping_delivery_days: Number(session.metadata?.shipping_delivery_days || 0) || null,
+    shipping_destination_postal_code: session.metadata?.shipping_destination_postal_code || null,
+    shipping_label_status: 'not_created',
     stripe_created_at: session.created ? new Date(session.created * 1000).toISOString() : null,
   };
 
