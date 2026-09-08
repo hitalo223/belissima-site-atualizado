@@ -190,6 +190,36 @@
     }));
   }
 
+  function renderCharacteristicsEditor(items = []) {
+    const editor = $('#product-characteristics-editor');
+    const normalized = Array.isArray(items) ? items : [];
+    editor.innerHTML = normalized.map((item) => `
+      <div class="admin-characteristic-row">
+        <label>Grupo<input data-characteristic-group maxlength="60" required value="${escapeHtml(item.group || 'Características principais')}" placeholder="Características principais"></label>
+        <label>Característica<input data-characteristic-label maxlength="80" required value="${escapeHtml(item.label || '')}" placeholder="Material"></label>
+        <label>Valor<input data-characteristic-value maxlength="240" required value="${escapeHtml(item.value || '')}" placeholder="Renda e microfibra"></label>
+        <button type="button" data-remove-characteristic aria-label="Remover característica">×</button>
+      </div>`).join('');
+    $$('[data-remove-characteristic]', editor).forEach((button) => button.addEventListener('click', () => button.closest('.admin-characteristic-row').remove()));
+    editor.classList.toggle('is-empty', normalized.length === 0);
+  }
+
+  function addCharacteristicRow() {
+    const current = collectProductCharacteristics(true);
+    current.push({ group: current.at(-1)?.group || 'Características principais', label: '', value: '' });
+    renderCharacteristicsEditor(current);
+    $('#product-characteristics-editor').lastElementChild?.querySelector('[data-characteristic-label]')?.focus();
+  }
+
+  function collectProductCharacteristics(includeIncomplete = false) {
+    const items = $$('.admin-characteristic-row', $('#product-characteristics-editor')).map((row) => ({
+      group: $('[data-characteristic-group]', row).value.trim(),
+      label: $('[data-characteristic-label]', row).value.trim(),
+      value: $('[data-characteristic-value]', row).value.trim(),
+    }));
+    return includeIncomplete ? items : items.filter((item) => item.group && item.label && item.value);
+  }
+
   function openProductModal(id = '') {
     editingProduct = state.products.find((product) => product.id === id) || null;
     productImages = [...(editingProduct?.image_urls || [])];
@@ -211,6 +241,7 @@
     form.sizes.value = (editingProduct?.sizes || []).join(', ');
     form.colors.value = (editingProduct?.colors || []).join(', ');
     form.description.value = editingProduct?.description || '';
+    renderCharacteristicsEditor(editingProduct?.characteristics || []);
     form.active.checked = editingProduct ? editingProduct.active : true;
     form.featured.checked = editingProduct?.featured || false;
     renderImagePreview($('#product-image-preview'), productImages, 'product');
@@ -270,7 +301,8 @@
       const files = [...form.images.files];
       if (files.length) productImages.push(...await uploadFiles(files, `products/${id}`));
       if (form.hover_media.files[0]) productHoverMedia = (await uploadFiles([form.hover_media.files[0]], `products/${id}/hover`))[0];
-      const payload = { id, category_id: form.category_id.value, name: form.elements.name.value.trim(), description: form.description.value.trim() || null, price_cents: Math.round(Number(form.price.value) * 100), badge: form.badge.value.trim() || null, colors: form.colors.value.split(',').map((item) => item.trim()).filter(Boolean), sizes: form.sizes.value.split(',').map((item) => item.trim()).filter(Boolean), image_urls: productImages, hover_media_url: productHoverMedia || null, stock_quantity: form.stock_quantity.value === '' ? null : Number(form.stock_quantity.value), weight_kg: Number(form.weight_kg.value), height_cm: Number(form.height_cm.value), width_cm: Number(form.width_cm.value), length_cm: Number(form.length_cm.value), active: form.active.checked, featured: form.featured.checked };
+      const optionalNumber = (field) => form.elements[field].value === '' ? null : Number(form.elements[field].value);
+      const payload = { id, category_id: form.category_id.value, name: form.elements.name.value.trim(), description: form.description.value.trim() || null, price_cents: Math.round(Number(form.price.value) * 100), badge: form.badge.value.trim() || null, colors: form.colors.value.split(',').map((item) => item.trim()).filter(Boolean), sizes: form.sizes.value.split(',').map((item) => item.trim()).filter(Boolean), characteristics: collectProductCharacteristics(), image_urls: productImages, hover_media_url: productHoverMedia || null, stock_quantity: form.stock_quantity.value === '' ? null : Number(form.stock_quantity.value), weight_kg: optionalNumber('weight_kg'), height_cm: optionalNumber('height_cm'), width_cm: optionalNumber('width_cm'), length_cm: optionalNumber('length_cm'), active: form.active.checked, featured: form.featured.checked };
       const query = editingProduct ? client.from('products').update(payload).eq('id', id) : client.from('products').insert(payload);
       const { error } = await query;
       if (error) throw error;
@@ -351,6 +383,7 @@
     $('#order-search').addEventListener('input', renderOrders);
     $('#order-payment-filter').addEventListener('change', renderOrders);
     $('#new-product').addEventListener('click', () => openProductModal());
+    $('#add-product-characteristic').addEventListener('click', addCharacteristicRow);
     $('#new-category').addEventListener('click', () => openCategoryModal());
     $('#product-form').addEventListener('submit', saveProduct);
     $('#category-form').addEventListener('submit', saveCategory);

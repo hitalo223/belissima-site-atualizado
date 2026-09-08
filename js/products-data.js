@@ -161,7 +161,7 @@ async function loadCatalogData() {
 
     const [categoryResult, productResult] = await Promise.all([
       client.from('categories').select('id,name,description,image_url,sort_order,active').order('sort_order'),
-      client.from('products').select('id,category_id,name,description,price_cents,badge,colors,sizes,image_urls,hover_media_url,stock_quantity,active,featured,created_at').order('created_at'),
+      client.from('products').select('id,category_id,name,description,price_cents,badge,colors,sizes,image_urls,hover_media_url,stock_quantity,active,featured,characteristics,created_at').order('created_at'),
     ]);
 
     if (categoryResult.error || productResult.error) {
@@ -183,6 +183,7 @@ async function loadCatalogData() {
       stockQuantity: product.stock_quantity,
       active: product.active !== false,
       featured: product.featured === true,
+      characteristics: Array.isArray(product.characteristics) ? product.characteristics : [],
     }));
 
     Object.keys(CATEGORY_LABELS).forEach((key) => delete CATEGORY_LABELS[key]);

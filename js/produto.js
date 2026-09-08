@@ -204,6 +204,29 @@ document.addEventListener('DOMContentLoaded', async () => {
   const description = document.querySelector('#acc-1 .acc-body');
   if (description && product.description) description.textContent = product.description;
 
+  // ---- Características cadastradas pelo administrador ----
+  const characteristicsRoot = document.getElementById('product-characteristics-groups');
+  const characteristics = Array.isArray(product.characteristics)
+    ? product.characteristics.filter((item) => item?.group && item?.label && item?.value)
+    : [];
+  if (characteristicsRoot && characteristics.length) {
+    const groups = characteristics.reduce((result, item) => {
+      const group = String(item.group).trim();
+      if (!result[group]) result[group] = [];
+      result[group].push(item);
+      return result;
+    }, {});
+    characteristicsRoot.innerHTML = Object.entries(groups).map(([group, items]) => `
+      <section class="characteristics-group">
+        <h3>${catalogEscape(group)}</h3>
+        <dl>${items.map((item) => `<div><dt>${catalogEscape(item.label)}</dt><dd>${catalogEscape(item.value)}</dd></div>`).join('')}</dl>
+      </section>`).join('');
+  }
+
+  document.getElementById('pdp-rating-link')?.addEventListener('click', () => {
+    document.getElementById('product-reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
   // ---- Veja também: outros produtos da mesma categoria ----
   const related = getProductsByCategory(product.category).filter((p) => p.id !== product.id).slice(0, 4);
   const relatedGrid = document.getElementById('related-grid');

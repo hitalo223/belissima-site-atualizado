@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@300;400;500;600;700&family=Cormorant+Garamond:ital@1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css?v=6">
-<link rel="stylesheet" href="css/produto.css?v=6">
+<link rel="stylesheet" href="css/produto.css?v=7">
 </head>
 <body>
 
@@ -81,7 +81,7 @@
     <div class="pdp-info">
       <div class="pdp-badge" id="pdp-badge" style="display:none;"></div>
       <h1 id="pdp-name">Nome do produto</h1>
-      <div class="pdp-rating">☆☆☆☆☆ Seja o primeiro a avaliar</div>
+      <button class="pdp-rating" id="pdp-rating-link" type="button"><span id="pdp-rating-stars">☆☆☆☆☆</span> <span id="pdp-rating-copy">Seja o primeiro a avaliar</span></button>
       <div class="pdp-price" id="pdp-price">R$ 0,00</div>
       <div class="pdp-installment" id="pdp-installment">Em até 6x sem juros</div>
 
@@ -149,6 +149,44 @@
     </div>
   </div>
 
+  <section class="product-content-section">
+    <div class="product-characteristics" aria-labelledby="product-characteristics-title">
+      <div class="product-section-heading">
+        <span>DETALHES</span>
+        <h2 id="product-characteristics-title">Características do produto</h2>
+      </div>
+      <div class="characteristics-groups" id="product-characteristics-groups">
+        <p class="product-content-empty">As características deste produto serão adicionadas em breve.</p>
+      </div>
+    </div>
+
+    <div class="product-reviews" id="product-reviews" aria-labelledby="product-reviews-title">
+      <div class="product-section-heading">
+        <span>EXPERIÊNCIAS</span>
+        <h2 id="product-reviews-title">Opiniões sobre o produto</h2>
+      </div>
+      <div class="reviews-layout">
+        <aside class="reviews-summary">
+          <div class="reviews-score-row"><strong id="reviews-average">0,0</strong><div><div class="review-stars-display" aria-label="Sem avaliações"><span>★★★★★</span><b id="reviews-stars-fill">★★★★★</b></div><small id="reviews-count">Nenhuma avaliação</small></div></div>
+          <div class="reviews-breakdown" id="reviews-breakdown"></div>
+        </aside>
+        <div class="reviews-main">
+          <form class="review-form" id="review-form" hidden>
+            <h3>Sua avaliação</h3>
+            <p>Conte como foi sua experiência com esta peça.</p>
+            <div class="review-star-picker" id="review-star-picker" role="radiogroup" aria-label="Nota do produto">
+              <button type="button" role="radio" aria-checked="false" data-rating="1" aria-label="1 estrela">★</button><button type="button" role="radio" aria-checked="false" data-rating="2" aria-label="2 estrelas">★</button><button type="button" role="radio" aria-checked="false" data-rating="3" aria-label="3 estrelas">★</button><button type="button" role="radio" aria-checked="false" data-rating="4" aria-label="4 estrelas">★</button><button type="button" role="radio" aria-checked="false" data-rating="5" aria-label="5 estrelas">★</button>
+            </div>
+            <textarea id="review-comment" maxlength="1200" rows="4" placeholder="Escreva um comentário (opcional)"></textarea>
+            <div class="review-form-footer"><span class="review-message" id="review-message" role="status" aria-live="polite"></span><button type="submit" id="review-submit">PUBLICAR AVALIAÇÃO</button></div>
+          </form>
+          <div class="review-login" id="review-login" hidden><p>Entre na sua conta para avaliar este produto.</p><a href="login.html">ENTRAR PARA AVALIAR</a></div>
+          <div class="reviews-list" id="reviews-list"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <div class="related-section">
     <div class="section-title">Veja também</div>
     <div class="prod-grid" id="related-grid"></div>
@@ -194,11 +232,12 @@
   </footer>
 
   <script src="js/shipping-ui.js?v=1"></script>
-  <script src="js/products-data.js?v=3"></script>
-  <script src="js/produto.js?v=6"></script>
+  <script src="js/products-data.js?v=4"></script>
+  <script src="js/produto.js?v=7"></script>
   <script src="js/nav.js?v=3"></script>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/product-reviews.js?v=1"></script>
 </body>
 </html>

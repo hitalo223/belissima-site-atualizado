@@ -6,7 +6,7 @@
   <title>Painel administrativo — Belíssima</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/admin.css?v=3">
+  <link rel="stylesheet" href="css/admin.css?v=4">
 </head>
 <body class="admin-body">
   <div class="admin-app" id="admin-app" hidden>
@@ -114,11 +114,13 @@
         <label>Tamanhos<input name="sizes" placeholder="P, M, G, GG"></label>
         <label class="span-2">Cores (nome|hexadecimal)<input name="colors" placeholder="Malva|#604C43, Rosa|#F3B8C8"></label>
         <div class="span-2 admin-form-divider"><strong>Dados para cálculo de frete</strong><small>Informe peso e medidas reais do produto já embalado.</small></div>
-        <label>Peso (kg)<input name="weight_kg" type="number" min="0.001" step="0.001" placeholder="0,250" required></label>
-        <label>Altura (cm)<input name="height_cm" type="number" min="1" step="0.1" placeholder="5" required></label>
-        <label>Largura (cm)<input name="width_cm" type="number" min="1" step="0.1" placeholder="20" required></label>
-        <label>Comprimento (cm)<input name="length_cm" type="number" min="1" step="0.1" placeholder="25" required></label>
+        <label>Peso (kg)<input name="weight_kg" type="number" min="0.001" step="0.001" placeholder="Preencher depois"></label>
+        <label>Altura (cm)<input name="height_cm" type="number" min="1" step="0.1" placeholder="Preencher depois"></label>
+        <label>Largura (cm)<input name="width_cm" type="number" min="1" step="0.1" placeholder="Preencher depois"></label>
+        <label>Comprimento (cm)<input name="length_cm" type="number" min="1" step="0.1" placeholder="Preencher depois"></label>
         <label class="span-2">Descrição<textarea name="description" rows="3"></textarea></label>
+        <div class="span-2 admin-characteristics-head"><div><strong>Características do produto</strong><small>Crie grupos como “Principais”, “Modelagem” ou “Composição”.</small></div><button type="button" id="add-product-characteristic">+ ADICIONAR</button></div>
+        <div class="span-2 admin-characteristics-editor" id="product-characteristics-editor"></div>
         <label class="span-2">Imagens<input name="images" type="file" accept="image/jpeg,image/png,image/webp,image/avif" multiple><small>Até 5 MB por imagem. As imagens atuais são mantidas se nenhum arquivo for escolhido.</small></label>
         <div class="admin-image-preview span-2" id="product-image-preview"></div>
         <label class="span-2">GIF ao passar o mouse (opcional)<input name="hover_media" type="file" accept="image/gif"><small>Quando enviado, o GIF aparece nos cards da loja no lugar da sequência de fotos.</small></label>
@@ -148,6 +150,6 @@
 
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
-  <script src="js/admin.js?v=3"></script>
+  <script src="js/admin.js?v=4"></script>
 </body>
 </html>
