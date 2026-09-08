@@ -114,6 +114,23 @@ document.addEventListener('DOMContentLoaded', async () => {
   const shippingButton = document.getElementById('product-shipping-button');
   const shippingStatus = document.getElementById('product-shipping-status');
   const shippingOptions = document.getElementById('product-shipping-options');
+  const shippingToggle = document.getElementById('shipping-calculator-toggle');
+  const shippingPanel = document.getElementById('shipping-address-panel');
+  const shippingAddressFields = [
+    ['product-shipping-street', 'Informe o nome da rua.'],
+    ['product-shipping-number', 'Informe o número do endereço.'],
+    ['product-shipping-neighborhood', 'Informe o bairro.'],
+    ['product-shipping-city', 'Informe a cidade.'],
+    ['product-shipping-state', 'Selecione o estado.'],
+  ];
+  if (shippingToggle && shippingPanel) {
+    shippingToggle.addEventListener('click', () => {
+      const willOpen = shippingPanel.hidden;
+      shippingPanel.hidden = !willOpen;
+      shippingToggle.setAttribute('aria-expanded', String(willOpen));
+      if (willOpen) postalInput?.focus();
+    });
+  }
   if (postalInput && shippingButton && window.BelissimaShipping) {
     const calculateProductShipping = async () => {
       const postalCode = BelissimaShipping.normalizePostalCode(postalInput.value);
@@ -124,11 +141,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         postalInput.focus();
         return;
       }
+      for (const [fieldId, message] of shippingAddressFields) {
+        const field = document.getElementById(fieldId);
+        if (!field?.value.trim()) {
+          shippingStatus.className = 'shipping-status error';
+          shippingStatus.textContent = message;
+          field?.focus();
+          return;
+        }
+      }
       shippingButton.disabled = true;
       shippingButton.textContent = 'CALCULANDO…';
       shippingStatus.className = 'shipping-status loading';
       shippingStatus.textContent = 'Consultando transportadoras…';
       try {
+        const config = await BelissimaShipping.getConfig();
+        if (!config.enabled) {
+          shippingStatus.className = 'shipping-status notice';
+          shippingStatus.textContent = 'Endereço preenchido. As opções de frete serão liberadas assim que as medidas de embalagem dos produtos forem cadastradas.';
+          return;
+        }
         const quote = await BelissimaShipping.quote(postalCode, [{ id: product.id, quantity: qty }]);
         shippingStatus.className = 'shipping-status success';
         shippingStatus.textContent = `${quote.options.length} ${quote.options.length === 1 ? 'opção encontrada' : 'opções encontradas'} para ${BelissimaShipping.formatPostalCode(postalCode)}.`;
@@ -142,7 +174,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         shippingStatus.textContent = error.message;
       } finally {
         shippingButton.disabled = false;
-        shippingButton.textContent = 'CALCULAR';
+        shippingButton.textContent = 'CONSULTAR FRETE';
       }
     };
     shippingButton.addEventListener('click', calculateProductShipping);

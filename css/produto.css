@@ -140,8 +140,12 @@
 .add-to-bag:hover { transform: translateY(-2px); background: #a8263f; }
 .add-to-bag.added { background: #604C43; }
 
-.shipping-calculator{margin-bottom:26px;padding:18px;border:1px solid rgba(96,76,67,.14);background:rgba(255,255,255,.34)}
-.shipping-calculator>label{display:block;margin-bottom:11px;color:#604C43;font-size:12px;font-weight:600;letter-spacing:.04em}
+.shipping-calculator{margin-bottom:26px;border:1px solid rgba(96,76,67,.14);background:rgba(255,255,255,.34)}
+.shipping-calculator-toggle{display:flex;width:100%;align-items:center;justify-content:space-between;gap:18px;padding:17px 18px;border:0;background:transparent;color:#604C43;text-align:left;cursor:pointer}
+.shipping-calculator-toggle span:first-child{display:grid;gap:3px}.shipping-calculator-toggle small{color:#A64B6B;font-size:8px;font-weight:700;letter-spacing:.18em}.shipping-calculator-toggle strong{font-size:12px;font-weight:600;letter-spacing:.04em}.shipping-toggle-icon{font-size:22px;font-weight:300;line-height:1;transition:transform .3s ease}.shipping-calculator-toggle[aria-expanded="true"] .shipping-toggle-icon{transform:rotate(45deg)}
+.shipping-address-panel{padding:0 18px 18px;border-top:1px solid rgba(96,76,67,.1);animation:shipping-panel-in .32s ease both}.shipping-address-panel[hidden]{display:none}.shipping-address-intro{margin:14px 0;color:#8a7568;font-size:10px;line-height:1.5}
+.shipping-address-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}.shipping-field{display:grid;grid-column:span 3;gap:6px;color:#604C43;font-size:9px;font-weight:600;letter-spacing:.05em}.shipping-field span{color:#a99586;font-weight:400;letter-spacing:0}.shipping-field input,.shipping-field select{width:100%;min-width:0;padding:10px 11px;border:1px solid rgba(96,76,67,.28);border-radius:0;background:#fff;color:#604C43;font:400 11px 'Manrope',sans-serif;outline:0;transition:border-color .2s ease,box-shadow .2s ease}.shipping-field input:focus,.shipping-field select:focus{border-color:#A64B6B;box-shadow:0 0 0 2px rgba(166,75,107,.08)}.shipping-field-cep,.shipping-field-number,.shipping-field-state{grid-column:span 2}.shipping-field-street,.shipping-field-complement{grid-column:span 4}.shipping-field-neighborhood,.shipping-field-city{grid-column:span 3}.shipping-submit{width:100%;margin-top:12px;padding:12px 16px;border:1px solid #A64B6B;background:#A64B6B;color:#fff;font:600 10px 'Manrope',sans-serif;letter-spacing:.12em;cursor:pointer;transition:background .2s ease,transform .2s ease}.shipping-submit:hover{background:#8f3e5b;transform:translateY(-1px)}
+@keyframes shipping-panel-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 .cep-check { display: flex; gap: 8px; }
 .cep-check input {
   flex: 1;
@@ -182,5 +186,6 @@
 }
 .cep-check button:disabled{cursor:wait;opacity:.58}
 .shipping-status{min-height:0;margin-top:0;color:#8a7568;font-size:11px;line-height:1.5}
-.shipping-status:not(:empty){margin-top:10px}.shipping-status.error{color:#a8263f}.shipping-status.success{color:#6d7e5b}
+.shipping-status:not(:empty){margin-top:10px}.shipping-status.error{color:#a8263f}.shipping-status.success{color:#6d7e5b}.shipping-status.notice{color:#7f4b62}
 .shipping-options{display:grid;gap:8px;margin-top:10px}.shipping-option-card{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px;border:1px solid rgba(96,76,67,.12);background:#fff}.shipping-option-card div{display:grid;gap:3px}.shipping-option-card strong{color:#604C43;font-size:11px}.shipping-option-card span{color:#8a7568;font-size:10px}.shipping-option-card>b{color:#604C43;font-size:12px;white-space:nowrap}.shipping-option-card>b.free{color:#C0304F}
+@media (max-width:560px){.shipping-address-grid{grid-template-columns:1fr 1fr}.shipping-field,.shipping-field-cep,.shipping-field-street,.shipping-field-complement,.shipping-field-neighborhood,.shipping-field-city{grid-column:1/-1}.shipping-field-number,.shipping-field-state{grid-column:span 1}}
