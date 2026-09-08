@@ -43,6 +43,11 @@ header {
 .header-icons { display:flex; gap:18px; font-size:13px; color:#604C43; min-width:160px; justify-content:flex-end; }
 .header-icons span { cursor:pointer; opacity:0.8; transition: transform .2s ease, opacity .2s ease; display:inline-block; }
 .header-icons span:hover { transform:translateY(-2px); opacity:1; }
+.site-search{position:relative;display:flex;align-items:center;z-index:90}
+.site-search-button{position:relative;z-index:2;width:20px;height:24px;padding:0;border:0;background:transparent;color:#604C43;font:inherit;line-height:1;cursor:pointer;opacity:.8;transition:transform .2s ease,opacity .2s ease}.site-search-button:hover{transform:translateY(-2px);opacity:1}
+.site-search-field{position:absolute;top:50%;right:26px;width:0;overflow:hidden;opacity:0;pointer-events:none;transform:translateY(-50%);transition:width .38s cubic-bezier(.22,1,.36,1),opacity .22s ease}.site-search.is-open .site-search-field{width:clamp(190px,26vw,300px);opacity:1;pointer-events:auto}
+.site-search-field input{width:100%;padding:10px 34px 10px 13px;border:1px solid rgba(96,76,67,.22);border-radius:999px;background:rgba(255,252,248,.98);box-shadow:0 8px 24px rgba(96,76,67,.1);color:#604C43;font:400 11px 'Manrope',sans-serif;outline:0}.site-search-field input:focus{border-color:#A64B6B;box-shadow:0 8px 26px rgba(166,75,107,.14)}.site-search-field input::-webkit-search-cancel-button{cursor:pointer}
+.site-search-results{position:absolute;top:calc(100% + 15px);right:0;width:min(360px,calc(100vw - 32px));max-height:min(480px,70vh);overflow:auto;border:1px solid rgba(96,76,67,.14);background:#fffaf6;box-shadow:0 18px 45px rgba(72,48,42,.16);animation:site-search-results-in .22s ease both}.site-search-results[hidden]{display:none}.site-search-result{display:grid;grid-template-columns:58px 1fr;align-items:center;gap:12px;padding:10px;border-bottom:1px solid rgba(96,76,67,.09);transition:background .2s ease}.site-search-result:last-child{border-bottom:0}.site-search-result:hover,.site-search-result:focus{background:#f6e9ed;outline:0}.site-search-result-image{display:grid!important;width:58px;height:68px;place-items:center;overflow:hidden;background:linear-gradient(145deg,#ead0dc,#a64b6b)!important;color:#fff;font:italic 23px 'DM Serif Display',serif;opacity:1!important}.site-search-result-image:hover{transform:none!important}.site-search-result-image img{width:100%;height:100%;object-fit:cover}.site-search-result>span:last-child{display:grid!important;gap:3px;opacity:1!important}.site-search-result>span:last-child:hover{transform:none!important}.site-search-result small{color:#A64B6B;font-size:7px;font-weight:700;letter-spacing:.13em;text-transform:uppercase}.site-search-result strong{font-size:10px;font-weight:600;line-height:1.35}.site-search-result b{font-size:10px;font-weight:500}.site-search-message{padding:22px 18px;color:#8a7568;font-size:10px;line-height:1.5;text-align:center}@keyframes site-search-results-in{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:translateY(0)}}
 .menu-toggle {
   min-width:160px;
   font-size:20px;
@@ -613,6 +618,7 @@ footer {
   header { padding:18px 20px 16px; }
   .header-icons, .menu-toggle { min-width:auto; }
   .header-icons { gap:14px; }
+  .site-search.is-open .site-search-field{width:min(230px,calc(100vw - 128px))}.site-search-results{position:fixed;top:104px;right:16px;left:16px;width:auto;max-height:60vh}
   .section-tabs {
     gap:26px;
     padding:14px 16px 0;
