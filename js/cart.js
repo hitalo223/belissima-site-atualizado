@@ -67,6 +67,7 @@
         id: item.id,
         name: item.name,
         price: Number(item.price),
+        image: item.image || '',
         size: item.size || '',
         color: item.color || '',
         quantity,
@@ -158,6 +159,7 @@
       .cart-empty strong{display:block;font-family:'DM Serif Display',serif;color:#604C43;font-size:22px;margin-bottom:8px;font-weight:400}
       .cart-item{padding:20px 0;border-bottom:1px solid rgba(96,76,67,.11);display:grid;grid-template-columns:70px 1fr;gap:16px}
       .cart-item-thumb{height:88px;background:linear-gradient(155deg,#E9DED0,#F3EDE4);display:flex;align-items:center;justify-content:center;color:#B6A494;font-size:9px;letter-spacing:1px}
+      .cart-item-thumb img{width:100%;height:100%;object-fit:cover}
       .cart-item-top{display:flex;justify-content:space-between;gap:12px}
       .cart-item-name{font-size:13px;font-weight:600;line-height:1.4}
       .cart-remove{border:0;background:none;color:#A99586;font-size:11px;text-decoration:underline;cursor:pointer}
@@ -271,7 +273,9 @@
 
     itemsEl.innerHTML = cart.map((item, index) => `
       <div class="cart-item">
-        <div class="cart-item-thumb">BELÍSSIMA</div>
+        <div class="cart-item-thumb">${item.image
+          ? `<img src="${escapeHtml(item.image)}" alt="" loading="lazy">`
+          : 'BELÍSSIMA'}</div>
         <div>
           <div class="cart-item-top">
             <div class="cart-item-name">${escapeHtml(item.name)}</div>
@@ -313,9 +317,16 @@
     btn.textContent = 'ABRINDO CHECKOUT…';
 
     try {
+      const headers = { 'Content-Type': 'application/json' };
+      const authClient = window.BelissimaAuth?.client;
+      if (authClient) {
+        const { data } = await authClient.auth.getSession();
+        if (data.session?.access_token) headers.Authorization = `Bearer ${data.session.access_token}`;
+      }
+
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           items: cart.map(({ id, quantity, size, color }) => ({ id, quantity, size, color }))
         }),
@@ -343,7 +354,15 @@
       const size = document.querySelector('#size-options .size-btn.active')?.dataset.size || product.sizes?.[0] || '';
       const color = document.querySelector('#color-options .color-swatch.active')?.dataset.color || product.colors?.[0] || '';
       const quantity = Number(document.getElementById('qty-value')?.textContent || 1);
-      addItem({ id: product.id, name: product.name, price: product.price, size, color, quantity });
+      addItem({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: catalogImageUrl(product),
+        size,
+        color,
+        quantity,
+      });
     });
   }
 

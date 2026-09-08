@@ -1,4 +1,5 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadCatalogData();
   const params = new URLSearchParams(window.location.search);
   const id = params.get('id');
   const product = getProductById(id);
@@ -22,6 +23,15 @@ document.addEventListener('DOMContentLoaded', () => {
   if (product.badge) {
     badgeEl.textContent = product.badge;
     badgeEl.style.display = 'inline-block';
+  }
+
+  const gallery = document.querySelector('.pdp-gallery');
+  if (gallery && product.images?.length) {
+    gallery.innerHTML = product.images.slice(0, 4).map((url, index) => `
+      <div class="g-img has-image">
+        <img src="${catalogEscape(url)}" alt="${catalogEscape(product.name)} — imagem ${index + 1}">
+      </div>
+    `).join('');
   }
 
   // ---- Cores ----
@@ -85,10 +95,12 @@ document.addEventListener('DOMContentLoaded', () => {
   relatedGrid.innerHTML = related.map((p) => `
     <a class="prod-card" href="produto.html?id=${p.id}">
       <div class="prod-img">
-        ${p.badge ? `<span class="badge">${p.badge}</span>` : ''}
-        [foto produto]
+        ${p.badge ? `<span class="badge">${catalogEscape(p.badge)}</span>` : ''}
+        ${catalogImageUrl(p)
+          ? `<img src="${catalogEscape(catalogImageUrl(p))}" alt="${catalogEscape(p.name)}" loading="lazy">`
+          : '<span class="placeholder-note">[foto produto]</span>'}
       </div>
-      <div class="p-name">${p.name}</div>
+      <div class="p-name">${catalogEscape(p.name)}</div>
       <div class="p-price">R$ ${p.price.toFixed(2).replace('.', ',')}</div>
     </a>
   `).join('');

@@ -24,6 +24,12 @@
   font-size: 12px;
   letter-spacing: 1px;
 }
+.pdp-gallery .g-img.has-image { overflow: hidden; }
+.pdp-gallery .g-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
 .pdp-info { flex: 1; padding-top: 6px; }
 .pdp-badge {

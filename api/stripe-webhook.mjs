@@ -64,10 +64,14 @@ async function persistOrder(stripe, session) {
   const paymentIntentId = typeof session.payment_intent === 'string'
     ? session.payment_intent
     : session.payment_intent?.id || null;
+  const userId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(session.metadata?.user_id || '')
+    ? session.metadata.user_id
+    : null;
 
   const orderPayload = {
     stripe_session_id: session.id,
     stripe_payment_intent_id: paymentIntentId,
+    user_id: userId,
     customer_email: customer.email || null,
     customer_name: customer.name || null,
     customer_phone: customer.phone || null,

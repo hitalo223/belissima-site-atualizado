@@ -1,7 +1,8 @@
 // Lê o parâmetro "cat" da URL (ex: categoria.html?cat=sutias), busca os
 // produtos dessa categoria em products-data.js, e monta o grid na tela.
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadCatalogData();
   const params = new URLSearchParams(window.location.search);
   const cat = params.get('cat') || 'sutias';
   const label = CATEGORY_LABELS[cat] || 'Categoria';
@@ -23,10 +24,12 @@ document.addEventListener('DOMContentLoaded', () => {
   grid.innerHTML = products.map((p, i) => `
     <a class="prod-card reveal" style="transition-delay:${(i * 0.08).toFixed(2)}s" href="produto.html?id=${p.id}">
       <div class="prod-img">
-        ${p.badge ? `<span class="badge">${p.badge}</span>` : ''}
-        [foto produto]
+        ${p.badge ? `<span class="badge">${catalogEscape(p.badge)}</span>` : ''}
+        ${catalogImageUrl(p)
+          ? `<img src="${catalogEscape(catalogImageUrl(p))}" alt="${catalogEscape(p.name)}" loading="lazy">`
+          : '<span class="placeholder-note">[foto produto]</span>'}
       </div>
-      <div class="p-name">${p.name}</div>
+      <div class="p-name">${catalogEscape(p.name)}</div>
       <div class="p-price">R$ ${p.price.toFixed(2).replace('.', ',')}</div>
     </a>
   `).join('');

@@ -116,7 +116,7 @@
       </section>
 
       <div class="section-title reveal">Categorias</div>
-      <div class="cat-grid">
+      <div class="cat-grid" id="store-category-grid">
         <a class="cat-card reveal" style="transition-delay:.05s" href="categoria.html?cat=sutias"><span class="placeholder-note">[foto categoria]</span><div><div class="label">Sutiãs</div><span class="discover">DESCOBRIR ›</span></div></a>
         <a class="cat-card reveal" style="transition-delay:.1s" href="categoria.html?cat=calcinhas"><span class="placeholder-note">[foto categoria]</span><div><div class="label">Calcinhas</div><span class="discover">DESCOBRIR ›</span></div></a>
         <a class="cat-card reveal" style="transition-delay:.15s" href="categoria.html?cat=bodies"><span class="placeholder-note">[foto categoria]</span><div><div class="label">Bodies</div><span class="discover">DESCOBRIR ›</span></div></a>
@@ -127,7 +127,7 @@
       </div>
 
       <div class="section-title reveal">Lançamentos</div>
-      <div class="prod-grid">
+      <div class="prod-grid" id="featured-products">
         <a class="prod-card reveal" style="transition-delay:.05s" href="produto.html?id=sutia-renda-sem-costura"><div class="prod-img"><span class="badge">NOVO</span>[foto produto]</div><div class="p-name">Sutiã Renda Sem Costura</div><div class="p-price">R$ 189,90</div></a>
         <a class="prod-card reveal" style="transition-delay:.15s" href="produto.html?id=calcinha-biquini-lisa"><div class="prod-img"><span class="badge">-15%</span>[foto produto]</div><div class="p-name">Calcinha Biquíni Lisa</div><div class="p-price">R$ 79,90</div></a>
         <a class="prod-card reveal" style="transition-delay:.25s" href="produto.html?id=body-decote-v"><div class="prod-img"><span class="badge">NOVO</span>[foto produto]</div><div class="p-name">Body Decote V</div><div class="p-price">R$ 219,90</div></a>
@@ -183,9 +183,11 @@
   </footer>
 
   <script src="js/reveal.js"></script>
-  <script src="js/nav.js"></script>
+  <script src="js/nav.js?v=2"></script>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/products-data.js?v=2"></script>
+  <script src="js/storefront.js?v=1"></script>
 </body>
 </html>

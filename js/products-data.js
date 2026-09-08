@@ -63,3 +63,79 @@ function getProductsByCategory(cat) {
 function getProductById(id) {
   return PRODUCTS.find((p) => p.id === id);
 }
+
+function getCatalogCategories() {
+  return Object.entries(CATEGORY_LABELS).map(([id, name]) => ({ id, name }));
+}
+
+function catalogImageUrl(product) {
+  return Array.isArray(product?.images) && product.images.length ? product.images[0] : '';
+}
+
+function catalogEscape(value) {
+  return String(value ?? '').replace(/[&<>'"]/g, (char) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+  }[char]));
+}
+
+function waitForCatalogClient() {
+  if (window.BelissimaAuth?.client) return Promise.resolve(window.BelissimaAuth.client);
+  return new Promise((resolve) => {
+    const timeout = window.setTimeout(() => resolve(window.BelissimaAuth?.client || null), 4500);
+    window.addEventListener('belissima:auth-ready', () => {
+      window.clearTimeout(timeout);
+      resolve(window.BelissimaAuth?.client || null);
+    }, { once: true });
+  });
+}
+
+let catalogLoadPromise = null;
+
+async function loadCatalogData() {
+  if (catalogLoadPromise) return catalogLoadPromise;
+
+  catalogLoadPromise = (async () => {
+    const client = await waitForCatalogClient();
+    if (!client) return { categories: getCatalogCategories(), products: PRODUCTS, source: 'fallback' };
+
+    const [categoryResult, productResult] = await Promise.all([
+      client.from('categories').select('id,name,description,image_url,sort_order,active').order('sort_order'),
+      client.from('products').select('id,category_id,name,description,price_cents,badge,colors,sizes,image_urls,stock_quantity,active,featured,created_at').order('created_at'),
+    ]);
+
+    if (categoryResult.error || productResult.error) {
+      throw categoryResult.error || productResult.error;
+    }
+
+    const categories = categoryResult.data || [];
+    const products = (productResult.data || []).map((product) => ({
+      id: product.id,
+      category: product.category_id,
+      name: product.name,
+      description: product.description || '',
+      price: Number(product.price_cents || 0) / 100,
+      badge: product.badge || '',
+      colors: Array.isArray(product.colors) ? product.colors : [],
+      sizes: Array.isArray(product.sizes) ? product.sizes : [],
+      images: Array.isArray(product.image_urls) ? product.image_urls : [],
+      stockQuantity: product.stock_quantity,
+      active: product.active !== false,
+      featured: product.featured === true,
+    }));
+
+    Object.keys(CATEGORY_LABELS).forEach((key) => delete CATEGORY_LABELS[key]);
+    categories.forEach((category) => { CATEGORY_LABELS[category.id] = category.name; });
+    PRODUCTS.splice(0, PRODUCTS.length, ...products);
+
+    window.dispatchEvent(new CustomEvent('belissima:catalog-ready', {
+      detail: { categories, products: PRODUCTS },
+    }));
+    return { categories, products: PRODUCTS, source: 'supabase' };
+  })().catch((error) => {
+    catalogLoadPromise = null;
+    console.error('[Belíssima/Catálogo] Não foi possível carregar o catálogo atualizado', error);
+    return { categories: getCatalogCategories(), products: PRODUCTS, source: 'fallback' };
+  });
+
+  return catalogLoadPromise;
+}

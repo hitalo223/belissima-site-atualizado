@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acesso administrativo — Belíssima</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/admin.css?v=2">
+</head>
+<body class="admin-login-body">
+  <main class="admin-login-shell">
+    <section class="admin-login-brand">
+      <a href="loja.html" class="admin-wordmark">BELÍSSIMA <small>MODA ÍNTIMA</small></a>
+      <div class="admin-login-art">
+        <img src="assets/images/belissima-busto-rosa.webp" alt="" aria-hidden="true">
+        <span>GESTÃO BELÍSSIMA</span>
+        <h1>O cuidado da marca também está nos detalhes.</h1>
+        <p>Produtos, clientes e vendas reunidos em um espaço seguro.</p>
+      </div>
+    </section>
+
+    <section class="admin-login-form-wrap">
+      <a href="loja.html" class="admin-back">← Voltar ao site</a>
+      <div class="admin-login-copy">
+        <span class="admin-kicker">ACESSO RESTRITO</span>
+        <h2>Entrar no painel</h2>
+        <p>Use a conta autorizada para administrar a loja.</p>
+      </div>
+      <form id="admin-login-form" class="admin-login-form" novalidate>
+        <label>E-mail
+          <input type="email" name="email" autocomplete="username" placeholder="seu@email.com" required>
+        </label>
+        <label>Senha
+          <input type="password" name="password" autocomplete="current-password" placeholder="Sua senha" required>
+        </label>
+        <button class="admin-primary-button" type="submit">ENTRAR NO PAINEL</button>
+        <div class="admin-login-divider"><span>ou</span></div>
+        <button class="admin-google-button" id="admin-google-login" type="button">
+          <b>G</b> Continuar com Google
+        </button>
+        <div class="admin-form-message" id="admin-login-message" hidden></div>
+      </form>
+      <p class="admin-login-help">Somente administradores autorizados podem acessar esta página.</p>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/admin-login.js?v=1"></script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel administrativo — Belíssima</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/admin.css?v=2">
+</head>
+<body class="admin-body">
+  <div class="admin-app" id="admin-app" hidden>
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="admin-sidebar-head">
+        <a href="loja.html" class="admin-wordmark">BELÍSSIMA <small>MODA ÍNTIMA</small></a>
+        <button class="admin-menu-close" id="admin-menu-close" type="button" aria-label="Fechar menu">×</button>
+      </div>
+      <nav class="admin-nav" aria-label="Seções administrativas">
+        <button class="active" type="button" data-admin-view="dashboard"><span>⌂</span> Visão geral</button>
+        <button type="button" data-admin-view="products"><span>◇</span> Produtos</button>
+        <button type="button" data-admin-view="categories"><span>▦</span> Categorias</button>
+        <button type="button" data-admin-view="customers"><span>○</span> Clientes</button>
+        <button type="button" data-admin-view="orders"><span>□</span> Pedidos</button>
+      </nav>
+      <div class="admin-sidebar-foot">
+        <a href="loja.html" target="_blank" rel="noopener">↗ Acessar a loja</a>
+        <button type="button" id="admin-logout">Sair</button>
+      </div>
+    </aside>
+
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <button class="admin-menu-open" id="admin-menu-open" type="button" aria-label="Abrir menu">☰</button>
+        <div>
+          <span class="admin-kicker">PAINEL ADMINISTRATIVO</span>
+          <h1 id="admin-page-title">Visão geral</h1>
+        </div>
+        <div class="admin-user-chip">
+          <span class="admin-user-avatar" id="admin-user-avatar">A</span>
+          <div><b id="admin-user-name">Administradora</b><small id="admin-user-email"></small></div>
+        </div>
+      </header>
+
+      <main class="admin-content">
+        <div class="admin-global-message" id="admin-global-message" hidden></div>
+
+        <section class="admin-view active" data-admin-section="dashboard">
+          <div class="admin-hero-row">
+            <div><span class="admin-kicker">RESUMO DA LOJA</span><h2>Olá, <span id="admin-greeting-name">administradora</span>.</h2><p>Acompanhe os números principais e os pedidos mais recentes.</p></div>
+            <select id="dashboard-period" aria-label="Período do resumo"><option value="7">Últimos 7 dias</option><option value="30" selected>Últimos 30 dias</option><option value="90">Últimos 90 dias</option></select>
+          </div>
+          <div class="admin-metrics">
+            <article><span>Faturamento pago</span><strong id="metric-revenue">R$ 0,00</strong><small>pagamentos confirmados</small></article>
+            <article><span>Pedidos</span><strong id="metric-orders">0</strong><small id="metric-orders-pending">0 aguardando envio</small></article>
+            <article><span>Ticket médio</span><strong id="metric-average">R$ 0,00</strong><small>por pedido pago</small></article>
+            <article><span>Clientes</span><strong id="metric-customers">0</strong><small id="metric-new-customers">0 novos no período</small></article>
+          </div>
+          <div class="admin-dashboard-grid">
+            <article class="admin-panel admin-chart-panel">
+              <div class="admin-panel-head"><div><span class="admin-kicker">DESEMPENHO</span><h3>Vendas no período</h3></div><span class="admin-live-dot">Atualizado</span></div>
+              <div class="admin-chart" id="sales-chart" aria-label="Gráfico de vendas"></div>
+            </article>
+            <article class="admin-panel admin-products-summary">
+              <div class="admin-panel-head"><div><span class="admin-kicker">CATÁLOGO</span><h3>Produtos</h3></div><button type="button" data-go-view="products">Ver todos</button></div>
+              <div class="admin-summary-number" id="summary-products">0</div>
+              <p>produtos cadastrados</p>
+              <div class="admin-summary-lines"><span><b id="summary-active">0</b> ativos</span><span><b id="summary-out-stock">0</b> sem estoque</span></div>
+            </article>
+          </div>
+          <article class="admin-panel">
+            <div class="admin-panel-head"><div><span class="admin-kicker">MOVIMENTAÇÃO</span><h3>Pedidos recentes</h3></div><button type="button" data-go-view="orders">Ver pedidos</button></div>
+            <div class="admin-table-wrap"><table><thead><tr><th>Cliente</th><th>Data</th><th>Total</th><th>Pagamento</th><th>Envio</th></tr></thead><tbody id="recent-orders-body"></tbody></table></div>
+          </article>
+        </section>
+
+        <section class="admin-view" data-admin-section="products">
+          <div class="admin-section-head"><div><span class="admin-kicker">CATÁLOGO</span><h2>Produtos</h2><p>Adicione, edite ou retire peças da loja.</p></div><button class="admin-primary-button" type="button" id="new-product">+ NOVO PRODUTO</button></div>
+          <div class="admin-toolbar"><input id="product-search" type="search" placeholder="Buscar produto"><select id="product-category-filter"><option value="">Todas as categorias</option></select><select id="product-status-filter"><option value="">Todos os status</option><option value="active">Ativos</option><option value="inactive">Inativos</option></select></div>
+          <article class="admin-panel"><div class="admin-table-wrap"><table><thead><tr><th>Produto</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Status</th><th></th></tr></thead><tbody id="products-body"></tbody></table></div><div class="admin-empty" id="products-empty" hidden>Nenhum produto encontrado.</div></article>
+        </section>
+
+        <section class="admin-view" data-admin-section="categories">
+          <div class="admin-section-head"><div><span class="admin-kicker">ORGANIZAÇÃO</span><h2>Categorias</h2><p>Organize as seções usadas para apresentar os produtos.</p></div><button class="admin-primary-button" type="button" id="new-category">+ NOVA CATEGORIA</button></div>
+          <div class="admin-category-grid" id="categories-grid"></div>
+        </section>
+
+        <section class="admin-view" data-admin-section="customers">
+          <div class="admin-section-head"><div><span class="admin-kicker">RELACIONAMENTO</span><h2>Clientes cadastrados</h2><p>Consulte as contas criadas na loja.</p></div></div>
+          <div class="admin-toolbar"><input id="customer-search" type="search" placeholder="Buscar por nome ou e-mail"></div>
+          <article class="admin-panel"><div class="admin-table-wrap"><table><thead><tr><th>Cliente</th><th>E-mail</th><th>Cadastro</th><th>Último acesso</th><th>Confirmação</th></tr></thead><tbody id="customers-body"></tbody></table></div></article>
+        </section>
+
+        <section class="admin-view" data-admin-section="orders">
+          <div class="admin-section-head"><div><span class="admin-kicker">VENDAS</span><h2>Pedidos</h2><p>Acompanhe pagamentos e atualize o andamento das entregas.</p></div></div>
+          <div class="admin-toolbar"><input id="order-search" type="search" placeholder="Buscar cliente ou pedido"><select id="order-payment-filter"><option value="">Todos os pagamentos</option><option value="paid">Pagos</option><option value="unpaid">Não pagos</option></select></div>
+          <article class="admin-panel"><div class="admin-table-wrap"><table><thead><tr><th>Pedido</th><th>Cliente</th><th>Data</th><th>Total</th><th>Pagamento</th><th>Andamento</th></tr></thead><tbody id="orders-body"></tbody></table></div></article>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="admin-loading" id="admin-loading"><span></span><p>Verificando acesso seguro…</p></div>
+
+  <dialog class="admin-modal" id="product-modal">
+    <form method="dialog" id="product-form">
+      <div class="admin-modal-head"><div><span class="admin-kicker">CATÁLOGO</span><h2 id="product-modal-title">Novo produto</h2></div><button value="cancel" type="button" data-close-modal aria-label="Fechar">×</button></div>
+      <div class="admin-form-grid">
+        <label class="span-2">Nome<input name="name" required maxlength="140"></label>
+        <label>Identificador<input name="id" required pattern="[a-z0-9-]+" placeholder="nome-do-produto"></label>
+        <label>Categoria<select name="category_id" required></select></label>
+        <label>Preço (R$)<input name="price" type="number" min="0" step="0.01" required></label>
+        <label>Estoque<input name="stock_quantity" type="number" min="0" placeholder="Sem controle"></label>
+        <label>Etiqueta<input name="badge" maxlength="30" placeholder="NOVO ou -15%"></label>
+        <label>Tamanhos<input name="sizes" placeholder="P, M, G, GG"></label>
+        <label class="span-2">Cores (hexadecimal)<input name="colors" placeholder="#604C43, #F3EDE4"></label>
+        <label class="span-2">Descrição<textarea name="description" rows="3"></textarea></label>
+        <label class="span-2">Imagens<input name="images" type="file" accept="image/jpeg,image/png,image/webp,image/avif" multiple><small>Até 5 MB por imagem. As imagens atuais são mantidas se nenhum arquivo for escolhido.</small></label>
+        <div class="admin-image-preview span-2" id="product-image-preview"></div>
+        <label class="admin-check"><input name="active" type="checkbox" checked> Produto ativo na loja</label>
+        <label class="admin-check"><input name="featured" type="checkbox"> Mostrar em lançamentos</label>
+      </div>
+      <div class="admin-modal-actions"><button type="button" class="admin-secondary-button" data-close-modal>Cancelar</button><button type="submit" class="admin-primary-button" id="save-product">SALVAR PRODUTO</button></div>
+    </form>
+  </dialog>
+
+  <dialog class="admin-modal admin-modal-small" id="category-modal">
+    <form method="dialog" id="category-form">
+      <div class="admin-modal-head"><div><span class="admin-kicker">ORGANIZAÇÃO</span><h2 id="category-modal-title">Nova categoria</h2></div><button value="cancel" type="button" data-close-modal aria-label="Fechar">×</button></div>
+      <div class="admin-form-grid">
+        <label class="span-2">Nome<input name="name" required maxlength="80"></label>
+        <label>Identificador<input name="id" required pattern="[a-z0-9-]+" placeholder="nome-da-categoria"></label>
+        <label>Ordem<input name="sort_order" type="number" value="0"></label>
+        <label class="span-2">Descrição<textarea name="description" rows="3"></textarea></label>
+        <label class="span-2">Imagem da categoria<input name="image" type="file" accept="image/jpeg,image/png,image/webp,image/avif"></label>
+        <div class="admin-image-preview span-2" id="category-image-preview"></div>
+        <label class="admin-check span-2"><input name="active" type="checkbox" checked> Categoria ativa na loja</label>
+      </div>
+      <div class="admin-modal-actions"><button type="button" class="admin-secondary-button" data-close-modal>Cancelar</button><button type="submit" class="admin-primary-button" id="save-category">SALVAR CATEGORIA</button></div>
+    </form>
+  </dialog>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/admin.js?v=1"></script>
+</body>
+</html>

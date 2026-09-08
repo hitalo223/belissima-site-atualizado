@@ -2,7 +2,29 @@
 // loja.html, categoria.html e produto.html. Também destaca a categoria atual
 // (via ?cat= na URL) tanto na sidebar desktop quanto no drawer mobile.
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  if (typeof loadCatalogData === 'function') {
+    await loadCatalogData();
+    const counts = PRODUCTS.reduce((result, product) => {
+      result[product.category] = (result[product.category] || 0) + 1;
+      return result;
+    }, {});
+
+    const categories = getCatalogCategories();
+    const sidebarList = document.querySelector('.sidebar ul');
+    if (sidebarList) {
+      sidebarList.innerHTML = categories.map((category) => `
+        <li data-cat="${catalogEscape(category.id)}"><a href="categoria.html?cat=${encodeURIComponent(category.id)}">${catalogEscape(category.name)}</a></li>
+      `).join('');
+    }
+    const drawerList = document.querySelector('.mobile-drawer-section.categories');
+    if (drawerList) {
+      drawerList.innerHTML = categories.map((category) => `
+        <a href="categoria.html?cat=${encodeURIComponent(category.id)}" data-cat="${catalogEscape(category.id)}">${catalogEscape(category.name)} <span>${counts[category.id] || 0}</span></a>
+      `).join('');
+    }
+  }
+
   const toggle = document.querySelector('.menu-toggle');
   const drawer = document.getElementById('mobile-drawer');
 
