@@ -2,6 +2,7 @@
 (function () {
   const LOGIN_PAGE = 'login.html';
   const STORE_PAGE = 'loja.html';
+  const ADMIN_PAGE = 'admin.html';
   const currentPage = window.location.pathname.split('/').pop() || '';
 
   function getPageMessage() {
@@ -98,11 +99,31 @@
     botao.textContent = carregando ? 'UM MOMENTO…' : textoNormal;
   }
 
-  function scheduleStoreRedirect(messageEl, texto) {
+  async function isAdminSession(session) {
+    if (!session?.user?.id) return false;
+    const { data, error } = await supabaseClient
+      .from('admin_users')
+      .select('user_id')
+      .eq('user_id', session.user.id)
+      .maybeSingle();
+    if (error) throw error;
+    return Boolean(data);
+  }
+
+  function scheduleRedirect(messageEl, texto, targetPage) {
     if (redirectScheduled) return;
     redirectScheduled = true;
     showMessage(messageEl, texto, 'success');
-    window.setTimeout(() => window.location.replace(STORE_PAGE), 1200);
+    window.setTimeout(() => window.location.replace(targetPage), 900);
+  }
+
+  async function redirectAuthenticated(session, messageEl, customerMessage) {
+    const admin = await isAdminSession(session);
+    scheduleRedirect(
+      messageEl,
+      admin ? 'Acesso administrativo confirmado! Abrindo o painel…' : customerMessage,
+      admin ? ADMIN_PAGE : STORE_PAGE
+    );
   }
 
   function setupAccountIcon(session) {
@@ -192,12 +213,12 @@
       setLoading(btn, true, 'ENTRAR');
 
       try {
-        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
         if (error) {
           showMessage(msgEl, traduzErro(error.message), 'error');
           return;
         }
-        scheduleStoreRedirect(msgEl, 'Login realizado com sucesso! Redirecionando para a loja…');
+        await redirectAuthenticated(data.session, msgEl, 'Login realizado com sucesso! Redirecionando para a loja…');
       } catch (error) {
         console.error('[Belíssima/Auth] Falha no login', error);
         showMessage(msgEl, 'Falha de conexão. Verifique sua internet e tente novamente.', 'error');
@@ -279,7 +300,7 @@
 
         cadastroForm.reset();
         if (data.session) {
-          scheduleStoreRedirect(msgEl, 'Cadastro realizado com sucesso! Sua conta já está conectada. Redirecionando…');
+          await redirectAuthenticated(data.session, msgEl, 'Cadastro realizado com sucesso! Sua conta já está conectada. Redirecionando…');
         } else {
           showMessage(
             msgEl,
@@ -306,7 +327,7 @@
       try {
         const { error } = await supabaseClient.auth.signInWithOAuth({
           provider: 'google',
-          options: { redirectTo: `${window.location.origin}/${STORE_PAGE}` },
+          options: { redirectTo: `${window.location.origin}/${LOGIN_PAGE}?oauth=1` },
         });
         if (error) {
           showMessage(msgEl, traduzErro(error.message), 'error');
@@ -331,7 +352,7 @@
         const texto = params.get('cadastro') === 'confirmado'
           ? 'E-mail confirmado com sucesso! Sua conta está ativa. Redirecionando para a loja…'
           : 'Você já está conectada. Redirecionando para a loja…';
-        scheduleStoreRedirect(getPageMessage(), texto);
+        await redirectAuthenticated(session, getPageMessage(), texto);
       }
 
       supabaseClient.auth.onAuthStateChange((_event, nextSession) => {
