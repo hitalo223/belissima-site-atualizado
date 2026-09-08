@@ -58,14 +58,13 @@
   font-weight: 600;
   letter-spacing: .34em;
 }
-.auth-brand-model {
+.auth-brand-image {
   position: absolute;
   top: 50%;
   left: calc(100% + 10px);
   width: 62px;
   height: 74px;
-  overflow: visible;
-  background: transparent;
+  object-fit: contain;
   pointer-events: none;
   transform: translateY(-52%);
 }
@@ -497,7 +496,7 @@ input:focus-visible { outline: 3px solid rgba(210, 77, 115, .26); outline-offset
 @media (max-width: 470px) {
   .auth-header .logo-block .name { font-size: 22px; }
   .auth-header .logo-block .sub { letter-spacing: .28em; }
-  .auth-brand-model { left: calc(100% + 4px); width: 48px; height: 60px; }
+  .auth-brand-image { left: calc(100% + 4px); width: 48px; height: 60px; }
   .auth-visual { height: 168px; }
   .auth-visual h2 { font-size: 27px; }
   .auth-form-panel { padding: 29px 21px 34px; }
