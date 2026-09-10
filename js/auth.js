@@ -175,11 +175,11 @@
         dropdown.classList.toggle('open');
       };
     } else {
-      link.textContent = '👤';
+      link.innerHTML = '<img class="header-icon-svg user-icon-svg" src="assets/icons/user.svg" alt="" aria-hidden="true">';
       link.classList.add('account-icon');
       link.classList.remove('logged-in');
       link.setAttribute('href', LOGIN_PAGE);
-      link.removeAttribute('aria-label');
+      link.setAttribute('aria-label', 'Entrar na conta');
       link.onclick = null;
       if (dropdown) dropdown.remove();
     }

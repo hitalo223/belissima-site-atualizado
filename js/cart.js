@@ -161,6 +161,7 @@
     style.id = 'belissima-cart-styles';
     style.textContent = `
       .belissima-cart-icon{position:relative;display:inline-flex;align-items:center;justify-content:center;color:#604C43;text-decoration:none;opacity:.82;transition:transform .2s ease,opacity .2s ease;cursor:pointer;font-size:15px}
+      .belissima-cart-icon>img{display:block;width:17px;height:17px;object-fit:contain}
       .belissima-cart-icon:hover{transform:translateY(-2px);opacity:1}
       .belissima-cart-count{position:absolute;right:-9px;top:-9px;min-width:17px;height:17px;padding:0 4px;border-radius:20px;background:#C0304F;color:#fff;font:700 9px/17px 'Manrope',sans-serif;text-align:center;box-shadow:0 0 0 2px #F3EDE4}
       .belissima-cart-count.is-empty{display:none}
@@ -253,12 +254,12 @@
     if (!header) return;
     if (header.querySelector('.belissima-cart-icon')) return;
 
-    let bag = Array.from(header.querySelectorAll('span')).find((el) => el.textContent.trim().includes('🛍'));
+    const bag = header.querySelector('.cart-icon-placeholder');
     const icon = document.createElement('a');
     icon.href = '#';
     icon.className = 'belissima-cart-icon';
     icon.setAttribute('aria-label', 'Abrir sacola');
-    icon.innerHTML = '🛍<span class="belissima-cart-count is-empty" id="belissima-cart-count">0</span>';
+    icon.innerHTML = '<img src="assets/icons/bag.svg" alt="" aria-hidden="true"><span class="belissima-cart-count is-empty" id="belissima-cart-count">0</span>';
 
     if (bag) bag.replaceWith(icon);
     else header.appendChild(icon);
