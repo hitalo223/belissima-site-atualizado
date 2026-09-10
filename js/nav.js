@@ -1,6 +1,5 @@
-// Controla o menu mobile (drawer lateral) aberto pelo botão ☰, presente em
-// loja.html, categoria.html e produto.html. Também destaca a categoria atual
-// (via ?cat= na URL) tanto na sidebar desktop quanto no drawer mobile.
+// Controla o menu lateral aberto pelo botão ☰, presente em loja.html,
+// categoria.html e produto.html. Também destaca a categoria atual no menu.
 
 function normalizeSearchText(value) {
   return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
@@ -128,12 +127,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }, {});
 
     const categories = getCatalogCategories();
-    const sidebarList = document.querySelector('.sidebar ul');
-    if (sidebarList) {
-      sidebarList.innerHTML = categories.map((category) => `
-        <li data-cat="${catalogEscape(category.id)}"><a href="categoria.html?cat=${encodeURIComponent(category.id)}">${catalogEscape(category.name)}</a></li>
-      `).join('');
-    }
     const drawerList = document.querySelector('.mobile-drawer-section.categories');
     if (drawerList) {
       drawerList.innerHTML = categories.map((category) => `
@@ -171,18 +164,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer();
     });
 
-    // Fecha o drawer automaticamente se a tela crescer pra desktop
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 900 && drawer.classList.contains('open')) closeDrawer();
-    });
   }
 
-  // ---- Destaca a categoria atual (sidebar desktop + drawer mobile) ----
+  // ---- Destaca a categoria atual no menu lateral ----
   const activeCat = new URLSearchParams(window.location.search).get('cat');
   if (activeCat) {
-    document.querySelectorAll(`.sidebar li[data-cat="${activeCat}"]`).forEach((li) => {
-      li.classList.add('active');
-    });
     document.querySelectorAll(`#mobile-drawer a[data-cat="${activeCat}"]`).forEach((a) => {
       a.classList.add('active');
     });
