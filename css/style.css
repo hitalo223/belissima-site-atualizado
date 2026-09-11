@@ -432,7 +432,8 @@ main { width:100%; padding:40px 40px 0; }
 .prod-card.has-hover-media:hover .prod-card-media-primary { opacity: 0; }
 .prod-card.has-hover-media:hover .prod-card-hover-media { opacity: 1; transform: scale(1); }
 .prod-img > img:not(.prod-card-media),
-.cat-card > img {
+.cat-card > img,
+.cat-card > video {
   width: 100%;
   height: 100%;
   object-fit: cover;

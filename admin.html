@@ -19,6 +19,7 @@
         <button class="active" type="button" data-admin-view="dashboard"><span>⌂</span> Visão geral</button>
         <button type="button" data-admin-view="products"><span>◇</span> Produtos</button>
         <button type="button" data-admin-view="categories"><span>▦</span> Categorias</button>
+        <button type="button" data-admin-view="site-media"><span>▧</span> Mídia do site</button>
         <button type="button" data-admin-view="customers"><span>○</span> Clientes</button>
         <button type="button" data-admin-view="orders"><span>□</span> Pedidos</button>
       </nav>
@@ -84,6 +85,11 @@
           <div class="admin-category-grid" id="categories-grid"></div>
         </section>
 
+        <section class="admin-view" data-admin-section="site-media">
+          <div class="admin-section-head"><div><span class="admin-kicker">APARÊNCIA DA LOJA</span><h2>Mídia do site</h2><p>Troque as imagens ou os vídeos das grades editoriais. Cada alteração aparece automaticamente na loja.</p></div></div>
+          <div class="admin-media-grid" id="site-media-grid"></div>
+        </section>
+
         <section class="admin-view" data-admin-section="customers">
           <div class="admin-section-head"><div><span class="admin-kicker">RELACIONAMENTO</span><h2>Clientes cadastrados</h2><p>Consulte as contas criadas na loja.</p></div></div>
           <div class="admin-toolbar"><input id="customer-search" type="search" placeholder="Buscar por nome ou e-mail"></div>
@@ -140,7 +146,7 @@
         <label>Identificador<input name="id" required pattern="[a-z0-9-]+" placeholder="nome-da-categoria"></label>
         <label>Ordem<input name="sort_order" type="number" value="0"></label>
         <label class="span-2">Descrição<textarea name="description" rows="3"></textarea></label>
-        <label class="span-2">Imagem da categoria<input name="image" type="file" accept="image/jpeg,image/png,image/webp,image/avif"></label>
+        <label class="span-2">Imagem ou vídeo da categoria<input name="image" type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/gif,video/mp4,video/webm"><small>Fotos de até 8 MB ou vídeos MP4/WebM de até 30 MB.</small></label>
         <div class="admin-image-preview span-2" id="category-image-preview"></div>
         <label class="admin-check span-2"><input name="active" type="checkbox" checked> Categoria ativa na loja</label>
       </div>
@@ -150,6 +156,6 @@
 
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script src="js/supabase-config.js"></script>
-  <script src="js/admin.js?v=4"></script>
+  <script src="js/admin.js?v=5"></script>
 </body>
 </html>

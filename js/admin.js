@@ -2,12 +2,23 @@
   const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
   });
-  const state = { session: null, products: [], categories: [], customers: [], orders: [], orderItems: [] };
+  const state = { session: null, products: [], categories: [], customers: [], orders: [], orderItems: [], siteMedia: [], siteMediaError: null };
+  const SITE_MEDIA_SLOTS = [
+    { key: 'atelier-1-left', label: 'Grade principal · quadro 1', section: 'Grade Rituais', description: 'Primeiro quadro visual da grade grande.', defaultUrl: 'assets/video/acesso-belissima.mp4', defaultType: 'video' },
+    { key: 'atelier-1-right', label: 'Grade principal · quadro 2', section: 'Grade Rituais', description: 'Terceiro quadro visual da primeira tela.', defaultUrl: 'assets/images/presente-belissima.webp', defaultType: 'image' },
+    { key: 'atelier-2-left', label: 'Grade principal · quadro 3', section: 'Grade Rituais', description: 'Primeiro quadro visual da segunda tela.', defaultUrl: 'assets/images/belissima-busto-rosa.webp', defaultType: 'image' },
+    { key: 'atelier-2-right', label: 'Grade principal · quadro 4', section: 'Grade Rituais', description: 'Terceiro quadro visual da segunda tela.', defaultUrl: 'assets/video/ritual-corporal-belissima.mp4', defaultType: 'video' },
+    { key: 'editorial-1-main', label: 'História · mídia 1', section: 'Grade de histórias', description: 'Mídia central do primeiro capítulo.', defaultUrl: 'assets/video/acesso-belissima.mp4', defaultType: 'video' },
+    { key: 'editorial-1-detail', label: 'História · detalhe', section: 'Grade de histórias', description: 'Imagem pequena do primeiro capítulo.', defaultUrl: 'assets/images/presente-belissima.webp', defaultType: 'image' },
+    { key: 'editorial-2-main', label: 'História · mídia 2', section: 'Grade de histórias', description: 'Mídia central do segundo capítulo.', defaultUrl: 'assets/video/ritual-corporal-belissima.mp4', defaultType: 'video' },
+    { key: 'editorial-3-main', label: 'História · mídia 3', section: 'Grade de histórias', description: 'Mídia central do terceiro capítulo.', defaultUrl: 'assets/images/belissima-busto-rosa.webp', defaultType: 'image' },
+  ];
   let editingProduct = null;
   let editingCategory = null;
   let productImages = [];
   let productHoverMedia = '';
   let categoryImage = '';
+  let categoryMediaType = 'image';
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -59,6 +70,9 @@
     const failed = results.find((result) => result.error);
     if (failed) throw failed.error;
     [state.categories, state.products, state.customers, state.orders, state.orderItems] = results.map((result) => result.data || []);
+    const mediaResult = await client.from('site_media').select('*').order('sort_order');
+    state.siteMedia = mediaResult.data || [];
+    state.siteMediaError = mediaResult.error || null;
     renderAll();
   }
 
@@ -66,6 +80,7 @@
     renderDashboard();
     renderProducts();
     renderCategories();
+    renderSiteMedia();
     renderCustomers();
     renderOrders();
     populateCategorySelects();
@@ -143,11 +158,43 @@
   function renderCategories() {
     $('#categories-grid').innerHTML = state.categories.map((category) => {
       const count = state.products.filter((product) => product.category_id === category.id).length;
-      const style = category.image_url ? `style="background-image:url('${escapeHtml(category.image_url)}')"` : '';
-      return `<article class="admin-category-card"><div class="admin-category-image" ${style}></div><div class="admin-category-body"><h3>${escapeHtml(category.name)}</h3><p>${escapeHtml(category.description || 'Categoria da coleção Belíssima.')}</p><div class="admin-category-meta"><span>${count} produto${count === 1 ? '' : 's'} · ${category.active ? 'Ativa' : 'Inativa'}</span><div class="admin-category-actions"><button data-edit-category="${escapeHtml(category.id)}">Editar</button><button data-delete-category="${escapeHtml(category.id)}">Remover</button></div></div></div></article>`;
+      const media = category.image_url
+        ? category.media_type === 'video'
+          ? `<video src="${escapeHtml(category.image_url)}" autoplay muted loop playsinline preload="metadata"></video>`
+          : `<img src="${escapeHtml(category.image_url)}" alt="" loading="lazy">`
+        : '';
+      return `<article class="admin-category-card"><div class="admin-category-image">${media}</div><div class="admin-category-body"><h3>${escapeHtml(category.name)}</h3><p>${escapeHtml(category.description || 'Categoria da coleção Belíssima.')}</p><div class="admin-category-meta"><span>${count} produto${count === 1 ? '' : 's'} · ${category.active ? 'Ativa' : 'Inativa'}</span><div class="admin-category-actions"><button data-edit-category="${escapeHtml(category.id)}">Editar</button><button data-delete-category="${escapeHtml(category.id)}">Remover</button></div></div></div></article>`;
     }).join('');
     $$('[data-edit-category]').forEach((button) => button.addEventListener('click', () => openCategoryModal(button.dataset.editCategory)));
     $$('[data-delete-category]').forEach((button) => button.addEventListener('click', () => deleteCategory(button.dataset.deleteCategory)));
+  }
+
+  function mediaPreview(url, type, label) {
+    if (type === 'video') return `<video src="${escapeHtml(url)}" autoplay muted loop playsinline preload="metadata" aria-label="${escapeHtml(label)}"></video>`;
+    return `<img src="${escapeHtml(url)}" alt="${escapeHtml(label)}" loading="lazy">`;
+  }
+
+  function renderSiteMedia() {
+    const grid = $('#site-media-grid');
+    if (!grid) return;
+    if (state.siteMediaError) {
+      grid.innerHTML = '<div class="admin-media-help">A área de mídia ainda está sendo preparada. Atualize a página em alguns instantes.</div>';
+      return;
+    }
+    grid.innerHTML = SITE_MEDIA_SLOTS.map((slot) => {
+      const saved = state.siteMedia.find((item) => item.slot_key === slot.key);
+      const url = saved?.media_url || slot.defaultUrl;
+      const type = saved?.media_type || slot.defaultType;
+      return `<article class="admin-media-card" data-site-media-card="${escapeHtml(slot.key)}">
+        <div class="admin-media-preview">${mediaPreview(url, type, slot.label)}<span>${escapeHtml(slot.section)} · ${type === 'video' ? 'VÍDEO' : 'IMAGEM'}</span></div>
+        <div class="admin-media-body"><div><h3>${escapeHtml(slot.label)}</h3><p>${escapeHtml(slot.description)}</p></div>
+          <label class="admin-media-file">Nova imagem ou vídeo<input type="file" data-site-media-file accept="image/jpeg,image/png,image/webp,image/avif,image/gif,video/mp4,video/webm"></label>
+          <div class="admin-media-actions"><button class="admin-primary-button admin-media-save" type="button" data-save-site-media="${escapeHtml(slot.key)}">SALVAR</button><button class="admin-secondary-button" type="button" data-reset-site-media="${escapeHtml(slot.key)}">PADRÃO</button></div>
+        </div>
+      </article>`;
+    }).join('');
+    $$('[data-save-site-media]', grid).forEach((button) => button.addEventListener('click', () => saveSiteMedia(button.dataset.saveSiteMedia, button)));
+    $$('[data-reset-site-media]', grid).forEach((button) => button.addEventListener('click', () => resetSiteMedia(button.dataset.resetSiteMedia, button)));
   }
 
   function renderCustomers() {
@@ -181,12 +228,12 @@
     $('#product-form [name="category_id"]').innerHTML = options;
   }
 
-  function renderImagePreview(container, images, type) {
-    container.innerHTML = images.map((url) => `<span class="admin-preview-item"><img src="${escapeHtml(url)}" alt="Imagem atual"><button type="button" data-remove-${type}-image="${escapeHtml(url)}" aria-label="Remover imagem">×</button></span>`).join('');
+  function renderImagePreview(container, images, type, mediaType = 'image') {
+    container.innerHTML = images.map((url) => `<span class="admin-preview-item">${mediaType === 'video' ? `<video src="${escapeHtml(url)}" autoplay muted loop playsinline preload="metadata"></video>` : `<img src="${escapeHtml(url)}" alt="Imagem atual">`}<button type="button" data-remove-${type}-image="${escapeHtml(url)}" aria-label="Remover imagem">×</button></span>`).join('');
     $$(`[data-remove-${type}-image]`, container).forEach((button) => button.addEventListener('click', () => {
       if (type === 'product') productImages = productImages.filter((url) => url !== button.dataset.removeProductImage);
-      else categoryImage = '';
-      renderImagePreview(container, type === 'product' ? productImages : categoryImage ? [categoryImage] : [], type);
+      else { categoryImage = ''; categoryMediaType = 'image'; }
+      renderImagePreview(container, type === 'product' ? productImages : categoryImage ? [categoryImage] : [], type, type === 'category' ? categoryMediaType : 'image');
     }));
   }
 
@@ -263,6 +310,7 @@
   function openCategoryModal(id = '') {
     editingCategory = state.categories.find((category) => category.id === id) || null;
     categoryImage = editingCategory?.image_url || '';
+    categoryMediaType = editingCategory?.media_type || 'image';
     const form = $('#category-form');
     form.reset();
     $('#category-modal-title').textContent = editingCategory ? 'Editar categoria' : 'Nova categoria';
@@ -272,18 +320,24 @@
     form.sort_order.value = editingCategory?.sort_order ?? state.categories.length * 10;
     form.description.value = editingCategory?.description || '';
     form.active.checked = editingCategory ? editingCategory.active : true;
-    renderImagePreview($('#category-image-preview'), categoryImage ? [categoryImage] : [], 'category');
+    renderImagePreview($('#category-image-preview'), categoryImage ? [categoryImage] : [], 'category', categoryMediaType);
     $('#category-modal').showModal();
   }
 
-  async function uploadFiles(files, folder) {
+  function validateSiteMedia(file) {
+    if (!file || (!file.type.startsWith('image/') && !file.type.startsWith('video/'))) throw new Error('Escolha uma imagem ou um vídeo válido.');
+    const limit = file.type.startsWith('video/') ? 30 * 1024 * 1024 : 8 * 1024 * 1024;
+    if (file.size > limit) throw new Error(file.type.startsWith('video/') ? 'O vídeo deve ter até 30 MB.' : 'A imagem deve ter até 8 MB.');
+  }
+
+  async function uploadFiles(files, folder, bucket = 'product-images') {
     const urls = [];
     for (const file of files) {
       const extension = (file.name.split('.').pop() || 'webp').toLowerCase().replace(/[^a-z0-9]/g, '');
       const path = `${folder}/${Date.now()}-${crypto.randomUUID()}.${extension}`;
-      const { error } = await client.storage.from('product-images').upload(path, file, { cacheControl: '31536000' });
+      const { error } = await client.storage.from(bucket).upload(path, file, { cacheControl: '31536000', contentType: file.type });
       if (error) throw error;
-      const { data } = client.storage.from('product-images').getPublicUrl(path);
+      const { data } = client.storage.from(bucket).getPublicUrl(path);
       urls.push(data.publicUrl);
     }
     return urls;
@@ -326,8 +380,12 @@
     button.disabled = true;
     button.textContent = 'SALVANDO…';
     try {
-      if (form.image.files[0]) categoryImage = (await uploadFiles([form.image.files[0]], `categories/${id}`))[0];
-      const payload = { id, name: form.elements.name.value.trim(), description: form.description.value.trim() || null, image_url: categoryImage || null, sort_order: Number(form.sort_order.value || 0), active: form.active.checked };
+      if (form.image.files[0]) {
+        validateSiteMedia(form.image.files[0]);
+        categoryMediaType = form.image.files[0].type.startsWith('video/') ? 'video' : 'image';
+        categoryImage = (await uploadFiles([form.image.files[0]], `categories/${id}`, 'site-media'))[0];
+      }
+      const payload = { id, name: form.elements.name.value.trim(), description: form.description.value.trim() || null, image_url: categoryImage || null, media_type: categoryMediaType, sort_order: Number(form.sort_order.value || 0), active: form.active.checked };
       const query = editingCategory ? client.from('categories').update(payload).eq('id', id) : client.from('categories').insert(payload);
       const { error } = await query;
       if (error) throw error;
@@ -339,6 +397,45 @@
     } finally {
       button.disabled = false;
       button.textContent = 'SALVAR CATEGORIA';
+    }
+  }
+
+  async function saveSiteMedia(key, button) {
+    const slot = SITE_MEDIA_SLOTS.find((item) => item.key === key);
+    const card = button.closest('[data-site-media-card]');
+    const file = $('[data-site-media-file]', card)?.files?.[0];
+    if (!slot || !file) return showMessage('Escolha uma imagem ou um vídeo antes de salvar.', 'error');
+    button.disabled = true;
+    button.textContent = 'SALVANDO…';
+    try {
+      validateSiteMedia(file);
+      const mediaType = file.type.startsWith('video/') ? 'video' : 'image';
+      const mediaUrl = (await uploadFiles([file], `grids/${key}`, 'site-media'))[0];
+      const { error } = await client.from('site_media').upsert({ slot_key: key, label: slot.label, section: slot.section, media_type: mediaType, media_url: mediaUrl, active: true }, { onConflict: 'slot_key' });
+      if (error) throw error;
+      await loadData();
+      showMessage('Mídia atualizada na loja.');
+    } catch (error) {
+      showMessage(`Não foi possível atualizar a mídia: ${error.message}`, 'error');
+    } finally {
+      button.disabled = false;
+      button.textContent = 'SALVAR';
+    }
+  }
+
+  async function resetSiteMedia(key, button) {
+    const slot = SITE_MEDIA_SLOTS.find((item) => item.key === key);
+    if (!slot) return;
+    button.disabled = true;
+    try {
+      const { error } = await client.from('site_media').upsert({ slot_key: key, label: slot.label, section: slot.section, media_type: slot.defaultType, media_url: slot.defaultUrl, active: true }, { onConflict: 'slot_key' });
+      if (error) throw error;
+      await loadData();
+      showMessage('Mídia padrão restaurada.');
+    } catch (error) {
+      showMessage(`Não foi possível restaurar: ${error.message}`, 'error');
+    } finally {
+      button.disabled = false;
     }
   }
 
@@ -393,7 +490,7 @@
   function showView(view) {
     $$('[data-admin-view]').forEach((button) => button.classList.toggle('active', button.dataset.adminView === view));
     $$('[data-admin-section]').forEach((section) => section.classList.toggle('active', section.dataset.adminSection === view));
-    const titles = { dashboard: 'Visão geral', products: 'Produtos', categories: 'Categorias', customers: 'Clientes', orders: 'Pedidos' };
+    const titles = { dashboard: 'Visão geral', products: 'Produtos', categories: 'Categorias', 'site-media': 'Mídia do site', customers: 'Clientes', orders: 'Pedidos' };
     $('#admin-page-title').textContent = titles[view] || 'Painel';
     $('#admin-sidebar').classList.remove('open');
     window.scrollTo({ top: 0, behavior: 'smooth' });

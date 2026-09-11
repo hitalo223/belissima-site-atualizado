@@ -160,7 +160,7 @@ async function loadCatalogData() {
     if (!client) return { categories: getCatalogCategories(), products: PRODUCTS, source: 'fallback' };
 
     const [categoryResult, productResult] = await Promise.all([
-      client.from('categories').select('id,name,description,image_url,sort_order,active').order('sort_order'),
+      client.from('categories').select('id,name,description,image_url,media_type,sort_order,active').order('sort_order'),
       client.from('products').select('id,category_id,name,description,price_cents,badge,colors,sizes,image_urls,hover_media_url,stock_quantity,active,featured,characteristics,created_at').order('created_at'),
     ]);
 
