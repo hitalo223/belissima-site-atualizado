@@ -5,6 +5,7 @@
   var reveals=Array.prototype.slice.call(document.querySelectorAll('.about-reveal'));
   var words=Array.prototype.slice.call(document.querySelectorAll('[data-scroll-word]'));
   var parallaxItems=Array.prototype.slice.call(document.querySelectorAll('[data-parallax]'));
+  var backgroundTypes=Array.prototype.slice.call(document.querySelectorAll('[data-background-type]'));
   var ticking=false;
 
   function revealContent(){
@@ -38,6 +39,13 @@
         var strength=Number(item.getAttribute('data-parallax'))||.04;
         var offset=(center-(rect.top+rect.height/2))*strength;
         item.style.setProperty('--parallax-y',offset.toFixed(2)+'px');
+      });
+      backgroundTypes.forEach(function(item,index){
+        var rect=item.parentElement.getBoundingClientRect();
+        var progress=(window.innerHeight-rect.top)/(window.innerHeight+rect.height);
+        progress=Math.max(0,Math.min(1,progress));
+        var direction=index%2===0?1:-1;
+        item.style.setProperty('--background-x',((progress-.5)*150*direction).toFixed(1)+'px');
       });
     }
     ticking=false;
