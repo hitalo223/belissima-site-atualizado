@@ -6,7 +6,7 @@
 <title>Belíssima Moda Íntima — Loja</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Serif+Display:ital@0;1&family=Manrope:wght@300;400;500;600;700&family=Cormorant+Garamond:ital@1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=10">
+<link rel="stylesheet" href="css/style.css?v=11">
 </head>
 <body>
 
@@ -114,15 +114,68 @@
         <h2>Categorias</h2>
         <p>Formas, texturas e caimentos para vestir o seu ritmo.</p>
       </div>
-      <div class="cat-grid" id="store-category-grid">
+      <div class="cat-grid cat-grid-primary" id="store-category-grid">
         <a class="cat-card reveal" style="transition-delay:.05s" href="categoria.html?cat=sutias"><span class="placeholder-note">[foto categoria]</span><div><div class="label">Sutiãs</div><span class="discover">DESCOBRIR ›</span></div></a>
         <a class="cat-card reveal" style="transition-delay:.1s" href="categoria.html?cat=calcinhas"><span class="placeholder-note">[foto categoria]</span><div><div class="label">Calcinhas</div><span class="discover">DESCOBRIR ›</span></div></a>
         <a class="cat-card reveal" style="transition-delay:.15s" href="categoria.html?cat=bodies"><span class="placeholder-note">[foto categoria]</span><div><div class="label">Bodies</div><span class="discover">DESCOBRIR ›</span></div></a>
-        <a class="cat-card reveal" style="transition-delay:.2s" href="categoria.html?cat=conjuntos"><span class="placeholder-note">[foto categoria]</span><div><div class="label">Conjuntos</div><span class="discover">DESCOBRIR ›</span></div></a>
-        <a class="cat-card reveal" style="transition-delay:.25s" href="categoria.html?cat=pijamas"><span class="placeholder-note">[foto categoria]</span><div><div class="label">Pijamas</div><span class="discover">DESCOBRIR ›</span></div></a>
-        <a class="cat-card reveal" style="transition-delay:.3s" href="categoria.html?cat=modeladores"><span class="placeholder-note">[foto categoria]</span><div><div class="label">Modeladores</div><span class="discover">DESCOBRIR ›</span></div></a>
-        <a class="cat-card reveal" style="transition-delay:.35s" href="categoria.html?cat=outlet"><span class="placeholder-note">[foto categoria]</span><div><div class="label">Outlet</div><span class="discover">DESCOBRIR ›</span></div></a>
       </div>
+
+      <section class="phrase-carousel story-reveal" data-story-reveal data-grid-carousel data-autoplay-once aria-label="Frases Belíssima" aria-roledescription="carrossel">
+        <div class="phrase-carousel-top">
+          <span>ENTRE CAMADAS</span>
+          <div class="grid-carousel-controls">
+            <button type="button" data-grid-prev aria-label="Frases anteriores">←</button>
+            <span data-grid-status>1 / 2</span>
+            <button type="button" data-grid-next aria-label="Próximas frases">→</button>
+          </div>
+        </div>
+        <div class="grid-carousel-viewport">
+          <div class="grid-carousel-track">
+            <div class="phrase-slide" aria-label="1 de 2">
+              <div class="phrase-card story-reveal-piece">Vista o seu <em>ritmo.</em></div>
+              <div class="phrase-card phrase-card-accent story-reveal-piece">Sinta cada <em>detalhe.</em></div>
+              <div class="phrase-card story-reveal-piece">Escolha por <em>você.</em></div>
+            </div>
+            <div class="phrase-slide" aria-label="2 de 2">
+              <div class="phrase-card phrase-card-accent story-reveal-piece">Leveza que <em>acompanha.</em></div>
+              <div class="phrase-card story-reveal-piece">Formas para <em>sentir.</em></div>
+              <div class="phrase-card phrase-card-dark story-reveal-piece">Sua beleza, <em>inteira.</em></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="cat-grid cat-grid-secondary story-reveal" id="store-category-grid-secondary" data-story-reveal>
+        <a class="cat-card story-reveal-piece" href="categoria.html?cat=conjuntos"><span class="placeholder-note">[foto categoria]</span><div><div class="label">Conjuntos</div><span class="discover">DESCOBRIR ›</span></div></a>
+        <a class="cat-card story-reveal-piece" href="categoria.html?cat=pijamas"><span class="placeholder-note">[foto categoria]</span><div><div class="label">Pijamas</div><span class="discover">DESCOBRIR ›</span></div></a>
+        <a class="cat-card story-reveal-piece" href="categoria.html?cat=modeladores"><span class="placeholder-note">[foto categoria]</span><div><div class="label">Modeladores</div><span class="discover">DESCOBRIR ›</span></div></a>
+        <a class="cat-card story-reveal-piece" href="categoria.html?cat=outlet"><span class="placeholder-note">[foto categoria]</span><div><div class="label">Outlet</div><span class="discover">DESCOBRIR ›</span></div></a>
+      </div>
+
+      <section class="atelier-carousel story-reveal" data-story-reveal data-grid-carousel aria-label="Rituais Belíssima" aria-roledescription="carrossel">
+        <div class="atelier-head">
+          <div><span>RITUAIS DE VESTIR</span><h2>Entre o toque e o gesto.</h2></div>
+          <div class="grid-carousel-controls">
+            <button type="button" data-grid-prev aria-label="Ritual anterior">←</button>
+            <span data-grid-status>1 / 2</span>
+            <button type="button" data-grid-next aria-label="Próximo ritual">→</button>
+          </div>
+        </div>
+        <div class="grid-carousel-viewport">
+          <div class="grid-carousel-track">
+            <div class="atelier-slide" aria-label="1 de 2">
+              <figure class="atelier-card atelier-media story-reveal-piece"><video autoplay muted loop playsinline preload="metadata"><source src="assets/video/acesso-belissima.mp4" type="video/mp4"></video></figure>
+              <article class="atelier-card atelier-copy story-reveal-piece"><small>CONFORTO ÍNTIMO</small><h3>Uma pausa<br><em>só sua.</em></h3><p>Texturas que acolhem e formas que acompanham cada movimento.</p><a href="categoria.html?cat=conjuntos">DESCOBRIR CONJUNTOS ↗</a></article>
+              <figure class="atelier-card atelier-media story-reveal-piece"><img src="assets/images/presente-belissima.webp" alt="Lingerie rosa em uma caixa de presente" loading="lazy"></figure>
+            </div>
+            <div class="atelier-slide" aria-label="2 de 2">
+              <figure class="atelier-card atelier-media atelier-object story-reveal-piece"><img src="assets/images/belissima-busto-rosa.webp" alt="Escultura rosa da identidade Belíssima" loading="lazy"></figure>
+              <article class="atelier-card atelier-copy atelier-copy-light story-reveal-piece"><small>LIBERDADE DE SER</small><h3>Seu corpo,<br><em>seu tempo.</em></h3><p>Escolhas bonitas para viver a intimidade com presença e liberdade.</p><a href="categoria.html?cat=modeladores">VER MODELADORES ↗</a></article>
+              <figure class="atelier-card atelier-media story-reveal-piece"><video autoplay muted loop playsinline preload="metadata"><source src="assets/video/ritual-corporal-belissima.mp4" type="video/mp4"></video></figure>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <div class="section-heading section-heading-products reveal">
         <span>EDIÇÃO ATUAL</span>
@@ -252,7 +305,8 @@
   <script src="js/supabase-config.js"></script>
   <script src="js/auth.js?v=11"></script>
   <script src="js/products-data.js?v=4"></script>
-  <script src="js/storefront.js?v=2"></script>
+  <script src="js/storefront.js?v=3"></script>
+  <script src="js/store-grids.js?v=1"></script>
   <script src="js/editorial-carousel.js?v=1"></script>
 </body>
 </html>
