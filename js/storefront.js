@@ -10,6 +10,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       sutias: { url: 'assets/images/categoria-sutias.webp', type: 'image' },
       calcinhas: { url: 'assets/images/categoria-calcinhas.webp', type: 'image' },
       bodies: { url: 'assets/images/categoria-bodies.webp', type: 'image' },
+      conjuntos: { url: 'assets/images/categoria-conjuntos.webp', type: 'image' },
+      pijamas: { url: 'assets/images/categoria-pijamas.webp', type: 'image' },
+      modeladores: { url: 'assets/images/categoria-modeladores.webp', type: 'image' },
+      outlet: { url: 'assets/images/categoria-outlet.webp', type: 'image' },
     };
     const activeCategories = categories.filter((category) => category.active !== false);
     const renderCategories = (items, animated) => items.map((category, index) => {
