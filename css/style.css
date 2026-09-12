@@ -36,19 +36,20 @@ header {
   justify-content:space-between;
   box-shadow:0 9px 28px rgba(110,63,86,.07);
 }
-.logo-block { text-align:center; flex:1; }
+.logo-block { display:flex;align-items:center;justify-content:center;gap:13px;text-align:center;flex:1; }
 .logo-block .name {
   font-family:'Bodoni Moda','DM Serif Display', serif;
   font-size:30px;
   letter-spacing:3px;
-  color:var(--belissima-mauve-deep);
+  color:#141112;
 }
 .logo-block .sub {
   font-size:10px;
   letter-spacing:5px;
-  color:var(--belissima-mauve);
+  color:#141112;
   margin-top:2px;
 }
+.header-brand-mark{display:block;width:auto;height:62px;object-fit:contain;flex:0 0 auto}
 .header-icons { display:flex; align-items:center; gap:10px; font-size:13px; color:var(--belissima-mauve-deep); min-width:160px; justify-content:flex-end; }
 .header-icons span { cursor:pointer; opacity:0.8; transition: transform .2s ease, opacity .2s ease; display:inline-block; }
 .header-icons span:hover { transform:translateY(-2px); opacity:1; }
@@ -760,6 +761,8 @@ footer {
   .logo-block { min-width:0; }
   .logo-block .name { font-size:19px; letter-spacing:1.8px; white-space:nowrap; }
   .logo-block .sub { font-size:8px; letter-spacing:3px; }
+  .logo-block { gap:8px; }
+  .header-brand-mark { height:43px; }
   .header-icons { gap:5px; }
   header .header-icons > span,
   header .header-icons > a.account-icon,
